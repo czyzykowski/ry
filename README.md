@@ -30,8 +30,9 @@ language, you can change virtually everything in your plugins.
   - [:] Asks for a command in the minibuffer and eval's it (`smex`)
   - [x] Deletes char under cursor (`delete-char`)
 - Insert mode
-  - [any visible chars] Inserts charater at cursor's position
-  - [ESC] Enters normal mode  (`enter-normal-mode`)
+  - [any visible chars] Inserts charater at cursor's position (`self-insert-char`)
+  - [backspace] Deletes character to the left
+  - [esc] Enters normal mode  (`enter-normal-mode`)
 
 ### license
 

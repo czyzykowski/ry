@@ -75,6 +75,13 @@
         (lambda () (split-elt (string->list (car rest)) (car pos)))
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (cons new-char lrest))) (cdr rest))))))))
 
+(define (self-insert-char c)
+  (lambda (lines pos running mode)
+    (values
+      (insert-char lines pos c)
+      (try-move lines (pos-nudge-x pos 1))
+      running mode)))
+
 #|
 (define (change-char lines pos new-char)
   (call-with-values
@@ -200,10 +207,13 @@
   (let ([c (getch)])
    (cond [(char=? c (integer->char 27)) ; esc
             (backward-char lines pos running normal-mode)]
-         [else (values
-                 (insert-char lines pos c)
-                 (try-move lines (pos-nudge-x pos 1))
-                 running mode)])))
+         [(or (int-for-char=? c 8) (int-for-char=? c 127)) ; del|bksp
+            (delete-char
+              lines (try-move lines (pos-nudge-x pos -1))
+              running mode)]
+         [(char-visible? c)
+            ((self-insert-char c) lines pos running mode)]
+         [else (values lines pos running mode)])))
 
 (define (main-loop)
   (let loop ([lines (list "Welcome to ry!" "" "A basic editor.")]
