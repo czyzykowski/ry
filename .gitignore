@@ -1,0 +1,4 @@
+*.o
+*.so
+ry
+ry-old.scm

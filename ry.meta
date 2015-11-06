@@ -1,0 +1,7 @@
+(
+(license "MIT")
+(category tools)
+(needs ncurses format)
+(test-depends test)
+(author "Frederic Gingras")
+(synopsis "Basic modal editor."))
