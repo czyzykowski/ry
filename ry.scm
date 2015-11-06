@@ -168,15 +168,17 @@
 
 (define (normal-mode l p r m)
   (normal-mode% l p r m))
+(define enter-normal-mode (enter-mode normal-mode))
 
 (define (insert-mode l p r m)
   (insert-mode% l p r m))
+(define enter-insert-mode (enter-mode insert-mode))
 
 (define normal-mode%
   (define-binding
     (list
       (cons #\q save-buffers-kill-ry)
-      (cons #\i (enter-mode insert-mode))
+      (cons #\i enter-insert-mode)
       (cons #\h backward-char)
       (cons #\j next-line)
       (cons #\k previous-line)
@@ -196,7 +198,7 @@
 (define (insert-mode% lines pos running mode)
   (term-move (car pos) (cdr pos))
   (let ([c (getch)])
-   (cond [(char=? c (integer->char 27)) ; ESC
+   (cond [(char=? c (integer->char 27)) ; esc
             (backward-char lines pos running normal-mode)]
          [else (values
                  (insert-char lines pos c)
@@ -204,7 +206,7 @@
                  running mode)])))
 
 (define (main-loop)
-  (let loop ([lines (list "Welcome to ry!" "" "A humble editor.")]
+  (let loop ([lines (list "Welcome to ry!" "" "A basic editor.")]
              [pos (cons 0 0)]
              [running #t]
              [mode normal-mode])
