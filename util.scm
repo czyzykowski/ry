@@ -10,9 +10,13 @@
         [else (cons (car al) (set-assq (cdr al) key value))]))
 
 (define (eval-string input-text)
-  (string-trim-both
-    (format #f "~Y"
-      (eval (with-input-from-string input-text read)))))
+  (handle-exceptions
+    exn
+    (cons #f (string-append "Error: "
+               ((condition-property-accessor 'exn 'message) exn)))
+    (cons #t (string-trim-both
+               (format #f "~Y"
+                 (eval (with-input-from-string input-text read)))))))
 
 (define (char-visible? ch)
   (let ([ascii-num (char->integer ch)])
@@ -34,3 +38,13 @@
 
 (define (pos-nudge-y pos y-change)
   (pos-nudge-xy pos 0 y-change))
+
+(define (lines-height lines)
+  (if (not (null? lines))
+    (max 0 (- (length lines) 1))
+    0))
+
+(define (lines-width lines y)
+  (if (< y (length lines))
+    (max 0 (- (string-length (list-ref lines y)) 1))
+    0))

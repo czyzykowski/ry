@@ -10,11 +10,12 @@
   (let ([pos-text (string-append
                     " (" (number->string (car pos)) ", "
                     (number->string (cdr pos)) ") ")])
-    (term-display-with 0 0 A_REVERSE (lambda ()
+    (term-display-with -1 -1 A_REVERSE (lambda ()
       (term-display 0 (- term-height 2) (make-string term-width #\-))
       (term-display 5 (- term-height 2) pos-text)))))
 
-(define (display-minibuffer text)
+(define (display-minibuffer text error?)
   (term-display 0 (- term-height 1)
                 (make-string (- term-width 1) #\space))
-  (term-display 0 (- term-height 1) text))
+    (term-display-with (if error? COLOR_RED -1) -1 A_BOLD
+      (lambda () (term-display 0 (- term-height 1) text))))
