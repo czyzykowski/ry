@@ -18,21 +18,21 @@ language, you can change virtually everything in your plugins.
 **Currently implemented keybindings:**
 
 - Normal Mode
-  - [q] Quits editor (`save-buffers-kill-ry`)
-  - [i] Enters insert-mode (`enter-insert-mode`)
-  - [h] Moves cursor left (`backward-char`)
-  - [j] Moves cursor down (`next-line`)
-  - [k] Moves cursor up (`previous-line`)
-  - [l] Moves cursor right (`forward-char`)
-  - [d][d] Deletes current line (`kill-whole-line`)
-  - [d][h] or [d][j] Deletes char left of cursor  (`delete-backward-char`)
-  - [d][k] or [d][l] Deletes char right of cursor  (`delete-forward-char`)
-  - [:] Asks for a command in the minibuffer and eval's it (`smex`)
-  - [x] Deletes char under cursor (`delete-char`)
+  - <kbd>q</kbd> Quits editor (`save-buffers-kill-ry`)
+  - <kbd>i</kbd> Enters insert-mode (`enter-insert-mode`)
+  - <kbd>h</kbd> Moves cursor left (`backward-char`)
+  - <kbd>j</kbd> Moves cursor down (`next-line`)
+  - <kbd>k</kbd> Moves cursor up (`previous-line`)
+  - <kbd>l</kbd> Moves cursor right (`forward-char`)
+  - <kbd>d</kbd><kbd>d</kbd> Deletes current line (`kill-whole-line`)
+  - <kbd>d</kbd><kbd>h</kbd> or <kbd>d</kbd><kbd>j</kbd> Deletes char left of cursor  (`delete-backward-char`)
+  - <kbd>d</kbd><kbd>k</kbd> or <kbd>d</kbd><kbd>l</kbd> Deletes char right of cursor  (`delete-forward-char`)
+  - <kbd>:</kbd> Asks for a command in the minibuffer and eval's it (`smex`)
+  - <kbd>x</kbd> Deletes char under cursor (`delete-char`)
 - Insert mode
-  - [any visible chars] Inserts charater at cursor's position (`self-insert-char`)
-  - [backspace] Deletes character to the left
-  - [esc] Enters normal mode  (`enter-normal-mode`)
+  - <kbd>any visible chars</kbd> Inserts charater at cursor's position (`self-insert-char`)
+  - <kbd>backspace</kbd> Deletes character to the left
+  - <kbd>esc</kbd> Enters normal mode  (`enter-normal-mode`)
 
 ### license
 
