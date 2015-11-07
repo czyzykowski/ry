@@ -7,7 +7,10 @@
         (term-display 0 y (car l))
         (loop (cdr l) (+ y 1))))))
 
-(define (display-status-bar lines pos)
+(define (display-windows)
+  (term-display 0 0 (if (current-window) "win" "nowin")))
+
+(define (display-status-bar)
   (let ([pos-text (string-append
                     " (" (number->string (car pos)) ", "
                     (number->string (cdr pos)) ") ")])
@@ -15,9 +18,12 @@
       (term-display 0 (- term-height 2) (make-string term-width #\-))
       (term-display 5 (- term-height 2) pos-text)))))
 
-(define (display-minibuffer)
+(define (display-minibuffer% minibuffer-text minibuffer-error?)
   (term-display 0 (- term-height 1)
                 (make-string (- term-width 1) #\space))
     (term-display-with (if minibuffer-error? COLOR_RED -1) -1 A_BOLD
       (lambda ()
         (term-display 0 (- term-height 1) minibuffer-text))))
+
+(define (display-minibuffer)
+  (display-minibuffer% minibuffer-text minibuffer-error?))

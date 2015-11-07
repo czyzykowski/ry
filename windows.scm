@@ -1,19 +1,27 @@
 (define *window-tree* '())
 
 (define (new-window-leaf buffer)
-  (list ('type 'leaf)
-        ('focused #f)
-        ('buffer buffer)))
+  (list '(type leaf)
+        '(focused #f)
+        (list 'buffer buffer)))
 
-; type:(left horizontal vertical) position:(left right top bottom)
+; type=[left, horizontal, vertical]
+; position=[left, right, top, bottom]
 (define (new-window type a b)
-  (list ('type type)
+  (list (list 'type type)
         (if (eq? type 'horizontal)
-          ('top a)
-          ('left a))
+          (list 'top a)
+          (list 'left a))
         (if (eq? type 'vertical)
-          ('bottom b)
-          ('right b))))
+          (list 'bottom b)
+          (list 'right b))))
+
+(define (window-set-focused win r)
+  (set-assq win 'focused r))
+
+(define (init-window-tree buffer)
+  (let ([root-window (new-window-leaf buffer)])
+    (set! *window-tree* (window-set-focused (new-window-leaf buffer) #t))))
 
 (define (add-window window)
   (set! *window-tree* (cons window *window-tree*)))
@@ -33,6 +41,8 @@
 (define (current-window)
   (call-with-current-continuation
     (lambda (exit)
-      (map-window-leafs (lambda (win)
-        (if (eq? (assq 'focused win) #t)
-          (exit win)))))))
+      (map-window-leafs
+        (lambda (win)
+          (if (eq? (assq 'focused win) #t)
+            (exit win)))
+        *window-tree*))))

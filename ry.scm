@@ -1,76 +1,61 @@
-(use srfi-1 ncurses format)
-
-(include "util.scm")
-(include "log.scm")
-(include "term.scm")
-(include "display.scm")
-(include "movement.scm")
-(include "editing.scm")
-(include "buffer.scm")
-(include "windows.scm")
-
-;;; Minibuffer
-
-(define minibuffer-error? #f)
-(define minibuffer-text "")
-
-(define (set-minibuffer-message message)
-  (set! minibuffer-error? #f)
-  (set! minibuffer-text message))
-
-(define (set-minibuffer-error message)
-  (set! minibuffer-error? #t)
-  (set! minibuffer-text message))
-
-(define (edit-minibuffer input-text)
-  (term-move (string-length input-text) (- term-height 1))
-  (display-minibuffer input-text #f)
-  (let ([c (getch)])
-    (cond [(char=? c (integer->char 10)) ; enter
-            input-text]
-          [(char=? c (integer->char 27)) ; esc
-            #f]
-          [(or (int-for-char=? c 8) (int-for-char=? c 127)) ; del|bksp
-            (edit-minibuffer (string-drop-right input-text 1))]
-          [(char-visible? c)
-            (edit-minibuffer (string-append-char input-text c))]
-          [else
-            (edit-minibuffer input-text)])))
-
-;;; Commands
-
-(define (smex lines pos running mode)
-  (let ([command-text (edit-minibuffer "(")])
-    (if command-text
-      (let ([eval-result (eval-string command-text)])
-        (if (car eval-result)
-          (set-minibuffer-message (cdr eval-result))
-          (set-minibuffer-error (cdr eval-result)))))
-    (values lines pos running mode)))
+(use srfi-1 ncurses format files posix utils)
 
 (define *running* #t)
 
 (define (set-running-state state)
   (set! *running* state))
 
-(define (kill-ry)
-  (set! *running* #f))
+(include "util.scm")
+(include "log.scm")
+(include "term.scm")
 
-; TODO Actually save
-(define (save-buffers-kill-ry)
-  (kill-ry))
+(include "minibuffer.scm")
+(include "buffer.scm")
+(include "windows.scm")
+
+(include "display.scm")
+(include "currsor")
+(include "commands.scm")
 
 (include "modes.scm")
 
+; Take in the top level keybinding for current mode at first
+; Then, if matching in a sub keybinding, poll for an other keypress
+; until (mode-match-keypress) gives back a proc or nothing.
+(define (poll-input keybinding)
+  (let ([current-key-handler (mode-match-keypress keybinding (term-readch))])
+    (debug-pp current-key-handler)
+    (cond [(procedure? current-key-handler) (current-key-handler)]
+          [(list? current-key-handler) (poll-input current-key-handler)])))
+
+; Main application loop, at this point our code is wrapped in exception
+; handling.
+; All we need to do is set up the editor:
+;  - Load file if one was passed as CLI arg
+;  - Ensure we have a buffer (empty or from file)
+;  - Initialize window tree with newly created buffer
+;  - Enter normal mode
+;  - Welcome user
+; After that we loop alternating between rendering and polling for keys
 (define (main-loop)
+  ; setup
+  (let ([filename (car (command-line-arguments))])
+    (if (null? filename)
+      (add-buffer (new-buffer))
+      (add-buffer (new-buffer-from-file filename))))
+  (init-window-tree (get-buffer-by-number 0))
+  (enter-mode 'normal)
+  (set-minibuffer-message "Thanks for using ry!")
+
+  ; loop
   (let loop ()
     (if *running*
       (begin
         (term-update)
         (display-windows)
-        (display-status-bar)
         (display-minibuffer)
         (term-flush)
+        (poll-input (current-mode-keybinding))
         (loop)))))
 
 (define (handle-exception exn)
@@ -81,10 +66,6 @@
   (exit 1))
 
 (define (main)
-  (let ([filename (car (command-line-arguments))])
-    (if (null? filename)
-      (add-buffer (new-buffer))
-      (add-buffer (new-buffer-from-file filename))))
   (handle-exceptions exn (handle-exception exn)
     (begin
       (term-init)

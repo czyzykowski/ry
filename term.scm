@@ -1,3 +1,9 @@
+;;; ncurses wrapper layer
+;;;
+;;; This abstraction layer is user to give us the flexibility for change the
+;;; backing terminal drawing library, ncurses and it's quirks and is pretty
+;;; heavy for our use case but works out of the box on many systems.
+
 (define term-height 0)
 (define term-width 0)
 

@@ -1,3 +1,20 @@
+(define (kill-ry)
+  (set-running-state #f))
+
+; TODO Actually save
+(define (save-buffers-kill-ry)
+  (kill-ry))
+
+; `smex` reading input from the minibuffer and evals it
+; It's similar to ":" in vim or M-x in emacs
+(define (smex)
+  (let ([command-text (edit-minibuffer "(")])
+    (if command-text
+      (let ([eval-result (eval-string command-text)])
+        (if (car eval-result)
+          (set-minibuffer-message (cdr eval-result))
+          (set-minibuffer-error (cdr eval-result)))))))
+
 (define (split-elt l elt)
   (let loop ((head '())
              (tail l)

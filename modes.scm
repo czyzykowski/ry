@@ -16,10 +16,12 @@
 (define (current-mode)
   (assq *current-mode* *modes*))
 
+(define (current-mode-keybinding)
+  (cdr (current-mode)))
+
 (define (mode-match-keypress keybinding ch)
-  (lambda (ch)
-    (let ([f (assv ch keybinding)])
-     (if f (cdr f) #f))))
+  (let ([f (assv ch keybinding)])
+    (if f (cdr f) #f)))
 
 (define (define-binding alist)
   alist)
