@@ -1,53 +1,92 @@
+(define *modes* '())
+(define *current-mode* '())
+
 (define (enter-mode new-mode)
-  (lambda (lines pos running mode)
-    (values lines pos running new-mode)))
+  (set! *current-mode* new-mode))
+
+(define (new-mode name keybinding)
+  (set! *modes* (cons
+                  (cons name keybinding)
+                  *modes*))
+  (if (null? *current-mode*)
+    (set! *current-mode* name))
+  (lambda ()
+    (enter-mode name)))
+
+(define (current-mode)
+  (assq *current-mode* *modes*))
+
+(define (mode-match-keypress keybinding ch)
+  (lambda (ch)
+    (let ([f (assv ch keybinding)])
+     (if f (cdr f) #f))))
 
 (define (define-binding alist)
-  (lambda (lines pos running mode)
-    (term-move (car pos) (cdr pos))
-    (let ([f (assv (getch) alist)])
-     (if f
-       ((cdr f) lines pos running mode)
-       (values lines pos running mode)))))
+  alist)
 
-(define (normal-mode l p r m)
-  (normal-mode% l p r m))
-(define enter-normal-mode (enter-mode normal-mode))
+(define (numbers-binding fn)
+  (list (cons #\0 fn)
+    (cons #\1 fn) (cons #\2 fn) (cons #\3 fn)
+    (cons #\4 fn) (cons #\5 fn) (cons #\6 fn)
+    (cons #\7 fn) (cons #\8 fn) (cons #\9 fn)))
 
-(define (insert-mode l p r m)
-  (insert-mode% l p r m))
-(define enter-insert-mode (enter-mode insert-mode))
-
-(define normal-mode%
+(define (nested-numbers-binding fn)
   (define-binding
-    (list
-      (cons #\q save-buffers-kill-ry)
-      (cons #\i enter-insert-mode)
-      (cons #\h backward-char)
-      (cons #\j next-line)
-      (cons #\k previous-line)
-      (cons #\l forward-char)
-      (cons #\d
+    (append
+      (numbers-binding fn)
+      (numbers-binding
         (define-binding
-          (list
-            (cons #\d kill-whole-line)
-            (cons #\h delete-backward-char)
-            (cons #\j delete-backward-char)
-            (cons #\k delete-forward-char)
-            (cons #\l delete-forward-char))))
-      (cons #\: smex)
-      (cons #\x delete-char)
-      (cons #\r change-char))))
+          (append
+            (numbers-binding fn)
+            (numbers-binding
+              (define-binding
+                (numbers-binding fn)))))))))
 
-(define (insert-mode% lines pos running mode)
-  (term-move (car pos) (cdr pos))
-  (let ([c (getch)])
-   (cond [(char=? c (integer->char 27)) ; esc
-            (backward-char lines pos running normal-mode)]
-         [(or (int-for-char=? c 8) (int-for-char=? c 127)) ; del|bksp
-            (delete-char
-              lines (try-move lines (pos-nudge-x pos -1))
-              running mode)]
-         [(char-visible? c)
-            ((self-insert-char c) lines pos running mode)]
-         [else (values lines pos running mode)])))
+(define normal-mode
+  (new-mode
+    'normal
+    (define-binding
+      (list
+        (cons #\q save-buffers-kill-ry)
+        (cons #\i (lambda () (enter-mode 'insert)))
+        (cons #\h backward-char)
+        (cons #\j next-line)
+        (cons #\k previous-line)
+        (cons #\l forward-char)
+        (cons #\d
+          (define-binding
+            (list
+              (cons #\d kill-whole-line)
+              (cons #\h delete-backward-char)
+              (cons #\j delete-backward-char)
+              (cons #\k delete-forward-char)
+              (cons #\l delete-forward-char))))
+        (cons #\: smex)
+        (cons #\x delete-char)
+        (cons #\r change-char)))))
+
+(define (self-inserting-char-list)
+  (let loop ([current-char 32]
+             [keybindings '()])
+    (if (> current-char 126)
+      keybindings
+      (let* ([ch (integer->char current-char)]
+             [values-fn (lambda ()
+                          (values
+                            (+ current-char 1)
+                            (cons (cons ch (self-insert-char ch))
+                                  keybindings)))])
+        (call-with-values values-fn loop)))))
+
+(define insert-mode
+  (new-mode
+    'insert
+    (define-binding
+      (append
+        (self-inserting-char-list)
+        (list
+          (cons #\escape (lambda ()
+                          (enter-mode 'normal) (backward-char)))
+          (cons #\backspace (lambda () (backward-char) (delete-char)))
+          (cons #\delete (lambda () (backward-char) (delete-char)))
+          (cons #\space (self-insert-char #\space)))))))

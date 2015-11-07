@@ -1,4 +1,4 @@
-(use srfi-1 srfi-14 ncurses format)
+(use srfi-1 ncurses format)
 
 (include "util.scm")
 (include "log.scm")
@@ -6,6 +6,8 @@
 (include "display.scm")
 (include "movement.scm")
 (include "editing.scm")
+(include "buffer.scm")
+(include "windows.scm")
 
 ;;; Minibuffer
 
@@ -46,25 +48,30 @@
           (set-minibuffer-error (cdr eval-result)))))
     (values lines pos running mode)))
 
+(define *running* #t)
+
+(define (set-running-state state)
+  (set! *running* state))
+
+(define (kill-ry)
+  (set! *running* #f))
+
 ; TODO Actually save
-(define (save-buffers-kill-ry lines pos running mode)
-  (values lines pos #f mode))
+(define (save-buffers-kill-ry)
+  (kill-ry))
 
 (include "modes.scm")
 
 (define (main-loop)
-  (let loop ([lines (list "Welcome to ry!" "" "A basic editor.")]
-             [pos (cons 0 0)]
-             [running #t]
-             [mode normal-mode])
-    (if running
+  (let loop ()
+    (if *running*
       (begin
         (term-update)
-        (display-lines lines)
-        (display-status-bar lines pos)
-        (display-minibuffer minibuffer-text minibuffer-error?)
+        (display-windows)
+        (display-status-bar)
+        (display-minibuffer)
         (term-flush)
-        (call-with-values (lambda () (mode lines pos running mode)) loop)))))
+        (loop)))))
 
 (define (handle-exception exn)
   (term-shutdown)
@@ -74,6 +81,10 @@
   (exit 1))
 
 (define (main)
+  (let ([filename (car (command-line-arguments))])
+    (if (null? filename)
+      (add-buffer (new-buffer))
+      (add-buffer (new-buffer-from-file filename))))
   (handle-exceptions exn (handle-exception exn)
     (begin
       (term-init)
