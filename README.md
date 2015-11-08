@@ -24,6 +24,8 @@ language, you can change virtually everything in your plugins.
   - <kbd>j</kbd> Moves cursor down (`next-line`)
   - <kbd>k</kbd> Moves cursor up (`previous-line`)
   - <kbd>l</kbd> Moves cursor right (`forward-char`)
+  - <kbd>O</kbd> Insert a new line above current line (`insert-line-down`)
+  - <kbd>o</kbd> Insert a new line below current line (`insert-line-up`)
   - <kbd>d</kbd><kbd>d</kbd> Deletes current line (`kill-whole-line`)
   - <kbd>d</kbd><kbd>h</kbd> or <kbd>d</kbd><kbd>j</kbd> Deletes char left of cursor  (`delete-backward-char`)
   - <kbd>d</kbd><kbd>k</kbd> or <kbd>d</kbd><kbd>l</kbd> Deletes char right of cursor  (`delete-forward-char`)

@@ -71,6 +71,8 @@
         (cons #\A (lambda () (end-of-line) (enter-mode 'insert)))
         (cons #\0 beginning-of-line)
         (cons #\$ end-of-line)
+        (cons #\o (lambda () (insert-line-down) (enter-mode 'insert)))
+        (cons #\O (lambda () (insert-line-up) (enter-mode 'insert)))
         (cons #\h backward-char)
         (cons #\j next-line)
         (cons #\k previous-line)

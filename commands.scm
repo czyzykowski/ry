@@ -83,6 +83,12 @@
             (lambda (lhead lrest) (append head (cons (list->string (append lhead (cdr lrest))) (cdr rest)))))))
         lines)
       lines))
+(define (insert-line% lines line)
+  (if (< line (length lines))
+    (call-with-values
+      (lambda () (split-elt lines line))
+      (lambda (head rest) (append head '("") rest)))
+    lines))
 
 (define (self-insert-char ch)
   (lambda ()
@@ -111,3 +117,13 @@
 
 (define delete-forward-char delete-char)
 
+(define (insert-line-up)
+  (update-current-buffer-prop 'lines (lambda (buffer)
+    (insert-line% (buffer-lines buffer) (cdr (buffer-pointer buffer)))))
+  (beginning-of-line))
+
+(define (insert-line-down)
+  (next-line)
+  (update-current-buffer-prop 'lines (lambda (buffer)
+    (insert-line% (buffer-lines buffer) (cdr (buffer-pointer buffer)))))
+  (beginning-of-line))
