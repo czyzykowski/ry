@@ -1,26 +1,42 @@
+(define (update-cursor window x y width height left-gutter-width)
+  (if (window-focused? window)
+    (let* ([pointer (buffer-pointer (window-buffer window))]
+           [offsets (window-offsets window)]
+           [going-down (> (cdr pointer) (- height 1))]
+           [going-up (< (cdr pointer) (abs (cdr offsets)))]
+           [off-y (cond [going-down (- 0 (- (cdr pointer) (- height 1)))]
+                        [going-up (- 0 (cdr pointer))]
+                        [else 0])]
+           [update-offsets (or
+             (and (> (cdr offsets) off-y) going-down)
+             (and (< (cdr offsets) off-y) going-up))]
+           [cur-x (+ x left-gutter-width (car pointer) (car offsets))]
+           [cur-y (+ y (cdr pointer) (if update-offsets off-y (cdr offsets)))])
+      (when update-offsets
+        (update-current-window-prop 'offsets (lambda (window)
+          (cons 0 off-y)))
+        (set! window (set-assq window 'offsets (cons 0 off-y))))
+      (term-move cur-x cur-y)))
+  window)
+
 (define (display-buffer window x y width height)
   (define left-gutter-width (+ 1 (string-length (number->string (+ height 1)))))
-
-  (if (window-focused? window)
-    (let ([pointer (buffer-pointer (window-buffer window))])
-      (term-move (+ x left-gutter-width (car pointer)) (+ y (cdr pointer)))))
+  (set! window (update-cursor window x y width height left-gutter-width))
 
   (let loop ([lines (buffer-lines (window-buffer window))]
-             [current-y 0])
+             [current-y 0]
+             [current-buffer-y (abs (cdr (window-offsets window)))])
     (when (<= current-y height)
       (term-display-with x y term-c-white term-c-default #f (lambda (d)
         (d 0 current-y (string-append-char
-          (string-pad (number->string (+ current-y 1)) (- left-gutter-width 1))
+          (string-pad (number->string (+ current-buffer-y 1)) (- left-gutter-width 1))
           #\space))))
-      (if (null? lines)
-        (begin
-          (term-display-with x y term-c-white term-c-default #f (lambda (d)
-            (d left-gutter-width current-y (string-pad-right "~" width))));"࿋")))
-          (loop '() (+ current-y 1)))
-        (begin
-          (term-display-with x y term-c-white term-c-default #f (lambda (d)
-            (d left-gutter-width current-y (string-pad-right (car lines) width))))
-          (loop (cdr lines) (+ current-y 1)))))))
+      (if (>= current-buffer-y (length lines))
+        (term-display-with x y term-c-white term-c-default #f (lambda (d)
+          (d left-gutter-width current-y (string-pad-right "ø" width))))
+        (term-display-with x y term-c-white-light term-c-default #f (lambda (d)
+          (d left-gutter-width current-y (string-pad-right (list-ref lines current-buffer-y) width)))))
+      (loop lines (+ current-y 1) (+ current-buffer-y 1)))))
 
 (define (display-status-bar window x y width)
   (let* ([buffer (window-buffer window)]
@@ -28,9 +44,9 @@
          [buffer-state-text (if (buffer-modified? buffer)
                               (if (buffer-readonly? buffer) "*%" "**")
                               "--")]
-         [pos-text (string-append
-                     "(" (number->string (car pos)) ", "
-                     (number->string (cdr pos)) ")")]
+         [pos-text-x (number->string (+ (car pos) 1))]
+         [pos-text-y (number->string (+ (cdr pos) 1))]
+         [pos-text (string-append "(" pos-text-x ", " pos-text-y ")")]
          [mode-text (symbol->string (current-mode-name))]
          [bg-color (if (window-focused? window) term-c-blue term-c-blue-light)])
     (term-display-with x y term-c-white bg-color #f (lambda (d)

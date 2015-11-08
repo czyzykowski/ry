@@ -26,6 +26,9 @@
 (define (window-buffer window)
   (cdr (assq 'buffer window)))
 
+(define (window-offsets window)
+  (cdr (assq 'offsets window)))
+
 (define (window-focused? window)
   (cdr (assq 'focused? window)))
 
@@ -55,6 +58,13 @@
 (define (map-window-leafs! fn)
   (set! *window-tree*
     (map-window-leafs fn *window-tree*)))
+
+(define (update-current-window-prop prop fn)
+  (map-window-leafs!
+    (lambda (window)
+      (if (window-focused? window)
+        (set-assq window prop (fn window))
+        window))))
 
 ; Finds the first window marked as focused
 (define (current-window)
