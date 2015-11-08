@@ -42,6 +42,7 @@
   (call-with-values
     (lambda () (split-elt lines (cdr pos)))
     (lambda (head rest)
+      (if (null? rest) (set! rest '("")))
       (call-with-values
         (lambda () (split-elt (string->list (car rest)) (car pos)))
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (string->list str) lrest)) (cdr rest))))))))
@@ -50,6 +51,7 @@
   (call-with-values
     (lambda () (split-elt lines (cdr pos)))
     (lambda (head rest)
+      (if (null? rest) (set! rest '("")))
       (call-with-values
         (lambda () (split-elt (string->list (car rest)) (car pos)))
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (cons new-char lrest))) (cdr rest))))))))
@@ -58,6 +60,7 @@
   (call-with-values
     (lambda () (split-elt lines (cdr pos)))
     (lambda (head rest)
+      (if (null? rest) (set! rest '("")))
       (call-with-values
         (lambda () (split-elt (string->list (car rest)) (car pos)))
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (cons new-char (cdr lrest)))) (cdr rest))))))))

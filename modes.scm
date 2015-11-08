@@ -67,6 +67,10 @@
       (list
         (cons #\q save-buffers-kill-ry)
         (cons #\i (lambda () (enter-mode 'insert)))
+        (cons #\a (lambda () (forward-char) (enter-mode 'insert)))
+        (cons #\A (lambda () (end-of-line) (enter-mode 'insert)))
+        (cons #\0 beginning-of-line)
+        (cons #\$ end-of-line)
         (cons #\h backward-char)
         (cons #\j next-line)
         (cons #\k previous-line)

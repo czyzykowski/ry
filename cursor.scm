@@ -17,7 +17,7 @@
          [ny (cond [(> y height) height]
                    [(< y 0) 0]
                    [else y])]
-         [width (lines-width lines ny)]
+         [width (+ (lines-width lines ny) 1)]
          [nx (cond [(> x width) width]
                    [(< x 0) 0]
                    [else x])])
@@ -38,3 +38,11 @@
 (define (forward-char)
   (update-current-buffer-pointer (lambda (buffer)
     (pos-nudge-x (buffer-pointer buffer) 1))))
+
+(define (beginning-of-line)
+  (update-current-buffer-pointer (lambda (buffer)
+    (cons 0 (cdr (buffer-pointer buffer))))))
+
+(define (end-of-line)
+  (update-current-buffer-pointer (lambda (buffer)
+    (pos-nudge-x (buffer-pointer buffer) 10000))))
