@@ -25,6 +25,7 @@
 (define (smex)
   (edit-minibuffer "(" smex-commit))
 
+; Splits a list in two at a define `elt` index
 (define (split-elt l elt)
   (let loop ((head '())
              (tail l)
@@ -37,7 +38,7 @@
              (cdr tail)
              (+ i 1))))))
 
-(define (insert-string lines pos str)
+(define (insert-string% lines pos str)
   (call-with-values
     (lambda () (split-elt lines (cdr pos)))
     (lambda (head rest)
@@ -45,7 +46,7 @@
         (lambda () (split-elt (string->list (car rest)) (car pos)))
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (string->list str) lrest)) (cdr rest))))))))
 
-(define (insert-char lines pos new-char)
+(define (insert-char% lines pos new-char)
   (call-with-values
     (lambda () (split-elt lines (cdr pos)))
     (lambda (head rest)
@@ -53,51 +54,57 @@
         (lambda () (split-elt (string->list (car rest)) (car pos)))
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (cons new-char lrest))) (cdr rest))))))))
 
-(define (self-insert-char c)
-  (lambda (lines pos running mode)
-    (values
-      (insert-char lines pos c)
-      (try-move lines (pos-nudge-x pos 1))
-      running mode)))
-
-#|
-(define (change-char lines pos new-char)
+(define (change-char% lines pos new-char)
   (call-with-values
     (lambda () (split-elt lines (cdr pos)))
     (lambda (head rest)
       (call-with-values
         (lambda () (split-elt (string->list (car rest)) (car pos)))
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (cons new-char (cdr lrest)))) (cdr rest))))))))
-|#
 
-(define (change-char)
-  #f)
-
-(define (delete-char )
-  (values
-    (if (and (< (cdr pos) (length lines)) (>= (cdr pos) 0))
-      (if (and (< (car pos) (string-length (list-ref lines (cdr pos)))) (>= (car pos) 0))
-        (call-with-values
-          (lambda () (split-elt lines (cdr pos)))
-          (lambda (head rest)
-            (call-with-values
-              (lambda () (split-elt (string->list (car rest)) (car pos)))
-              (lambda (lhead lrest) (append head (cons (list->string (append lhead (cdr lrest))) (cdr rest)))))))
-        lines)
-      lines)
-    pos running mode))
-
-(define (delete-line lines line)
+(define (delete-line% lines line)
   (if (< line (length lines))
     (call-with-values
       (lambda () (split-elt lines line))
       (lambda (head rest) (append head (cdr rest))))
     lines))
 
-(define delete-backward-char (compose delete-char backward-char))
+(define (delete-char% lines pos)
+  (if (and (< (cdr pos) (length lines)) (>= (cdr pos) 0))
+    (if (and (< (car pos) (string-length (list-ref lines (cdr pos)))) (>= (car pos) 0))
+      (call-with-values
+        (lambda () (split-elt lines (cdr pos)))
+        (lambda (head rest)
+          (call-with-values
+            (lambda () (split-elt (string->list (car rest)) (car pos)))
+            (lambda (lhead lrest) (append head (cons (list->string (append lhead (cdr lrest))) (cdr rest)))))))
+        lines)
+      lines))
+
+(define (self-insert-char ch)
+  (lambda ()
+    (update-current-buffer-prop 'lines (lambda (buffer)
+      (insert-char% (buffer-lines buffer) (buffer-pointer buffer) ch)))
+    (forward-char)))
+
+(define (change-char ch)
+  (lambda ()
+    (update-current-buffer-prop 'lines (lambda (buffer)
+      (change-char% (buffer-lines buffer) (buffer-pointer buffer) ch)))))
+
+(define (kill-whole-line)
+  (update-current-buffer-prop 'lines (lambda (buffer)
+    (delete-line% (buffer-lines buffer) (cdr (buffer-pointer buffer)))))
+  (update-current-buffer-pointer (lambda (buffer)
+    (buffer-pointer buffer))))
+
+(define (delete-char)
+  (update-current-buffer-prop 'lines (lambda (buffer)
+    (delete-char% (buffer-lines buffer) (buffer-pointer buffer)))))
+
+(define (delete-backward-char)
+  (backward-char)
+  (delete-char))
+
 (define delete-forward-char delete-char)
 
-(define (kill-whole-line lines pos running mode)
-  (let* ([new-lines (delete-line lines (cdr pos))]
-         [new-pos (try-move new-lines pos)])
-    (values new-lines new-pos running mode)))

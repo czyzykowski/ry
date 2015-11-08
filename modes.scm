@@ -81,7 +81,7 @@
               (cons #\l delete-forward-char))))
         (cons #\: smex)
         (cons #\x delete-char)
-        (cons #\r change-char)))))
+        (cons #\r (self-inserting-char-list change-char))))))
 
 (define insert-mode
   (new-mode

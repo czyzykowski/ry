@@ -49,3 +49,15 @@
 
 (define (buffer-lines buffer)
   (cdr (assq 'lines buffer)))
+
+(define (update-current-buffer-prop prop fn)
+  (map-window-leafs!
+    (lambda (window)
+      (if (window-focused? window)
+        (set-assq window 'buffer
+          (set-assq (window-buffer window) prop (fn (window-buffer window))))
+        window))))
+
+(define (update-current-buffer-pointer fn)
+  (update-current-buffer-prop 'pointer (lambda (buffer)
+    (try-move buffer (fn buffer)))))

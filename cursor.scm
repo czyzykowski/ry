@@ -23,27 +23,18 @@
                    [else x])])
     (cons nx ny)))
 
-(define (update-current-buffer-pointer pointer)
-  (map-window-leafs!
-    (lambda (window)
-      (if (window-focused? window)
-        (set-assq window 'buffer
-          (set-assq (window-buffer window) 'pointer
-            (try-move (window-buffer window) pointer)))
-        window))))
-
 (define (previous-line)
-  (update-current-buffer-pointer
-    (pos-nudge-y (buffer-pointer (current-buffer)) -1)))
+  (update-current-buffer-pointer (lambda (buffer)
+    (pos-nudge-y (buffer-pointer buffer) -1))))
 
 (define (next-line)
-  (update-current-buffer-pointer
-    (pos-nudge-y (buffer-pointer (current-buffer)) 1)))
+  (update-current-buffer-pointer (lambda (buffer)
+    (pos-nudge-y (buffer-pointer buffer) 1))))
 
 (define (backward-char)
-  (update-current-buffer-pointer
-    (pos-nudge-x (buffer-pointer (current-buffer)) -1)))
+  (update-current-buffer-pointer (lambda (buffer)
+    (pos-nudge-x (buffer-pointer buffer) -1))))
 
 (define (forward-char)
-  (update-current-buffer-pointer
-    (pos-nudge-x (buffer-pointer (current-buffer)) 1)))
+  (update-current-buffer-pointer (lambda (buffer)
+    (pos-nudge-x (buffer-pointer buffer) 1))))
