@@ -51,6 +51,7 @@ language, you can change virtually everything in your plugins.
 - completion in command mode
 - completion in opening file
 - configuration options
+- change directory
 
 ### license
 
