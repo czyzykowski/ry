@@ -5,8 +5,8 @@
     (if (<= current-y (+ y height))
       (if (null? lines)
         (begin
-          (term-display-with 0 0 term-c-magenta term-c-default #f (lambda (d)
-            (d left-gutter-width current-y "࿋")))
+          (term-display-with 0 0 term-c-black-light term-c-default #f (lambda (d)
+            (d left-gutter-width current-y "~")));"࿋")))
           (loop '() (+ current-y 1)))
         (begin
           (term-display left-gutter-width current-y (car lines))
@@ -22,7 +22,7 @@
                      "(" (number->string (car pos)) ", "
                      (number->string (cdr pos)) ")")]
          [mode-text (symbol->string (current-mode-name))]
-         [bg-color (if (window-focused? window) term-c-cyan term-c-blue)])
+         [bg-color (if (window-focused? window) term-c-blue term-c-blue-light)])
     (term-display-with x y term-c-white bg-color #f (lambda (d)
       (d 0 0 (make-string width #\-))
       (d 1 0 buffer-state-text)
@@ -55,11 +55,11 @@
 
 ; Render minibuffer's current state
 (define (display-minibuffer% minibuffer-text minibuffer-error?)
-  (term-display 0 (- term-height 1)
-                (make-string term-width #\space))
-    (term-display-with 0 0 (if minibuffer-error? term-c-red term-c-white) term-c-default #f
+  (let ([fg-color (if minibuffer-error? term-c-red term-c-white)])
+    (term-display-with 0 0 fg-color term-c-default #f
       (lambda (d)
-        (d 0 (- term-height 1) minibuffer-text))))
+        (d 0 (- term-height 1) (make-string term-width #\space))
+        (d 0 (- term-height 1) minibuffer-text)))))
 
 (define (display-minibuffer)
   (display-minibuffer% minibuffer-text minibuffer-error?))

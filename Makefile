@@ -13,5 +13,8 @@ clean:
 	rm *.o
 	rm ry
 
+run:
+	chicken-install && ry ry.meta
+
 repl:
 	@csi -s support/repl.scm
