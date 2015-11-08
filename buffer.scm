@@ -21,7 +21,7 @@
                          filename
                          (make-pathname (current-directory) filename))]
          [file-exists (file-exists? full-filename)]
-         [file-lines (if file-exists (string-split (read-all full-filename) "\n") '())])
+         [file-lines (if file-exists (string-split (read-all full-filename) "\n" #t) '())])
     (list (cons 'modified? #f)
           (cons 'readonly? #f)
           (cons 'name (pathname-strip-directory full-filename))
