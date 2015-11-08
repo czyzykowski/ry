@@ -8,8 +8,8 @@
 (define (set-running-state state)
   (set! *running* state))
 
-(include "util.scm")
 (include "log.scm")
+(include "util.scm")
 (include "term.scm")
 
 (include "minibuffer.scm")

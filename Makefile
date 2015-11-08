@@ -12,3 +12,6 @@ ry: $(OBJ)
 clean:
 	rm *.o
 	rm ry
+
+repl:
+	@csi -s support/repl.scm
