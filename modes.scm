@@ -96,8 +96,8 @@
         (list
           (cons #\escape (lambda ()
                           (enter-mode 'normal) (backward-char)))
-          (cons #\backspace (lambda () (backward-char) (delete-char)))
-          (cons #\delete (lambda () (backward-char) (delete-char)))
+          (cons #\backspace delete-backward-char)
+          (cons #\delete delete-backward-char)
           (cons #\space (self-insert-char #\space)))))))
 
 (define command-mode

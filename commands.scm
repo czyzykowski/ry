@@ -106,8 +106,18 @@
     (delete-char% (buffer-lines buffer) (buffer-pointer buffer)))))
 
 (define (delete-backward-char)
-  (backward-char)
-  (delete-char))
+  (if (eq? (car (buffer-pointer (current-buffer))) 0)
+    (begin
+      (previous-line)
+      (end-of-line)
+      (update-current-buffer-prop 'lines (lambda (buffer)
+        (let ([lines (buffer-lines buffer)]
+              [pointer (buffer-pointer buffer)])
+          (insert-string% lines pointer (list-ref lines (+ (cdr pointer) 1))))))
+      (update-current-buffer-prop 'lines (lambda (buffer)
+        (delete-line% (buffer-lines buffer) (+ (cdr (buffer-pointer buffer)) 1)))))
+    (begin
+      (backward-char)
+      (delete-char))))
 
 (define delete-forward-char delete-char)
-

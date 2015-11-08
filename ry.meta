@@ -1,7 +1,7 @@
 (
 (license "MIT")
 (category tools)
-(needs termbox format utf8 lineoise)
+(needs termbox format utf8 linenoise)
 (test-depends test)
 (author "Frederic Gingras")
 (synopsis "Basic modal editor."))
