@@ -16,6 +16,9 @@
 (define (current-mode)
   (assq *current-mode* *modes*))
 
+(define (current-mode-name)
+  *current-mode*)
+
 (define (current-mode-keybinding)
   (cdr (current-mode)))
 
@@ -44,6 +47,19 @@
               (define-binding
                 (numbers-binding fn)))))))))
 
+(define (self-inserting-char-list fn)
+  (let loop ([current-char 32]
+             [keybindings '()])
+    (if (> current-char 126)
+      keybindings
+      (let* ([ch (integer->char current-char)]
+             [values-fn (lambda ()
+                          (values
+                            (+ current-char 1)
+                            (cons (cons ch (fn ch))
+                                  keybindings)))])
+        (call-with-values values-fn loop)))))
+
 (define normal-mode
   (new-mode
     'normal
@@ -67,28 +83,28 @@
         (cons #\x delete-char)
         (cons #\r change-char)))))
 
-(define (self-inserting-char-list)
-  (let loop ([current-char 32]
-             [keybindings '()])
-    (if (> current-char 126)
-      keybindings
-      (let* ([ch (integer->char current-char)]
-             [values-fn (lambda ()
-                          (values
-                            (+ current-char 1)
-                            (cons (cons ch (self-insert-char ch))
-                                  keybindings)))])
-        (call-with-values values-fn loop)))))
-
 (define insert-mode
   (new-mode
     'insert
     (define-binding
       (append
-        (self-inserting-char-list)
+        (self-inserting-char-list self-insert-char)
         (list
           (cons #\escape (lambda ()
                           (enter-mode 'normal) (backward-char)))
           (cons #\backspace (lambda () (backward-char) (delete-char)))
           (cons #\delete (lambda () (backward-char) (delete-char)))
           (cons #\space (self-insert-char #\space)))))))
+
+(define command-mode
+  (new-mode
+    'command
+    (define-binding
+      (append
+        (self-inserting-char-list command-mode-insert-char)
+        (list
+          (cons #\x0D command-mode-commit)
+          (cons #\escape normal-mode)
+          (cons #\backspace command-mode-delete-char)
+          (cons #\delete command-mode-delete-char)
+          (cons #\space (command-mode-insert-char #\space)))))))

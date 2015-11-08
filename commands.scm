@@ -5,15 +5,23 @@
 (define (save-buffers-kill-ry)
   (kill-ry))
 
+; Callback getting command entered.
+; Evals given text and pretty prints result to minibuffer
+(define (smex-commit command-text)
+  (if command-text
+    (let* ([corrected-command-text ; automatically appen ) to commands if needed
+              (if (eq? #\) (string-ref command-text (- (string-length command-text) 1)))
+                command-text
+                (string-append command-text ")"))]
+            [eval-result (eval-string corrected-command-text)])
+      (if (car eval-result)
+        (set-minibuffer-message (cdr eval-result))
+        (set-minibuffer-error (cdr eval-result))))))
+
 ; `smex` reading input from the minibuffer and evals it
 ; It's similar to ":" in vim or M-x in emacs
 (define (smex)
-  (let ([command-text (edit-minibuffer "(")])
-    (if command-text
-      (let ([eval-result (eval-string command-text)])
-        (if (car eval-result)
-          (set-minibuffer-message (cdr eval-result))
-          (set-minibuffer-error (cdr eval-result)))))))
+  (edit-minibuffer "(" smex-commit))
 
 (define (split-elt l elt)
   (let loop ((head '())
@@ -60,10 +68,10 @@
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (cons new-char (cdr lrest)))) (cdr rest))))))))
 |#
 
-(define (change-char lines pos running mode)
-  (values lines pos running mode))
+(define (change-char)
+  #f)
 
-(define (delete-char lines pos running mode)
+(define (delete-char )
   (values
     (if (and (< (cdr pos) (length lines)) (>= (cdr pos) 0))
       (if (and (< (car pos) (string-length (list-ref lines (cdr pos)))) (>= (car pos) 0))

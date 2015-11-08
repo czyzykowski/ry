@@ -1,51 +1,64 @@
-;;; ncurses wrapper layer
+;;; termbox wrapper layer
 ;;;
 ;;; This abstraction layer is user to give us the flexibility for change the
 ;;; backing terminal drawing library, ncurses and it's quirks and is pretty
 ;;; heavy for our use case but works out of the box on many systems.
 
+(define term-c-default #x00)
+(define term-c-black black)
+(define term-c-red red)
+(define term-c-green green)
+(define term-c-yellow yellow)
+(define term-c-blue blue)
+(define term-c-magenta magenta)
+(define term-c-cyan cyan)
+(define term-c-white white)
+
+(define term-a-bold bold)
+(define term-a-underline underline)
+(define term-a-reversed reversed)
+
 (define term-height 0)
 (define term-width 0)
 
 (define (term-init)
-  (initscr)
-  (cbreak)
-  (noecho)
-  (start_color)
-  (keypad (stdscr) #t))
+  (init)
+  ;(input-mode 'alt)
+  (output-mode 'normal))
 
 (define (term-shutdown)
-  (endwin))
+  (shutdown))
 
 (define (term-update)
-  (wclear (stdscr))
-  (let-values ([[my mx] (getmaxyx (stdscr))])
-    (set! term-width mx)
-    (set! term-height my)))
+  (clear term-c-default term-c-default)
+  (set! term-width (width))
+  (set! term-height (height)))
 
 (define (term-flush)
-  (wrefresh (stdscr)))
+  (present))
 
 (define (term-move x y)
-  (move y x))
+  (cursor-set! x y))
 
-(define (term-display x y text)
-  (mvaddstr y x text))
+(define (term-display x y text #!optional
+                               (fg term-c-black)
+                               (bg term-c-default)
+                               (attr #f))
+  (let* ([fg-style (if attr (style fg attr) (style fg))]
+         [bg-style (style bg)]
+         [cells (create-cells text fg-style bg-style)])
+    (let loop ([i 0]
+              [cells-left cells])
+      (if (not (null? cells-left))
+        (begin
+          (put-cell! (+ x i) y (car cells-left))
+          (loop (+ i 1) (cdr cells-left)))))))
 
-(define *color-pair-index* 0)
+(define (term-display-with base-x base-y fg bg attr fn)
+  (fn (lambda (x y text)
+    (let ([rx (+ base-x x)]
+          [ry (+ base-y y)])
+      (term-display rx ry text fg bg attr)))))
 
-(define (term-display-with f b a fn)
-  (let ([fg (if (eq? f -1) COLOR_WHITE f)]
-        [bg (if (eq? b -1) COLOR_BLACK b)]
-        [attr (if (eq? a -1) A_NORMAL a)])
-    (set! *color-pair-index* (modulo (+ *color-pair-index* 1) 256))
-    (init_pair *color-pair-index* fg bg)
-    (attron (COLOR_PAIR *color-pair-index*))
-    (attron attr)
-    (fn)
-    (attroff attr)
-    (attroff (COLOR_PAIR *color-pair-index*))))
-
-(define (term-readch)
-  (getch))
-
+(define (term-poll fn)
+  (poll fn (lambda (x y) (term-poll fn))))

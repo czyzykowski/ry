@@ -1,4 +1,7 @@
-(use srfi-1 ncurses format files posix utils)
+(use srfi-1 termbox format files posix utils)
+(require-extension utf8)
+(require-extension utf8-srfi-13)
+(require-extension utf8-srfi-14)
 
 (define *running* #t)
 
@@ -14,7 +17,7 @@
 (include "windows.scm")
 
 (include "display.scm")
-(include "currsor")
+(include "cursor.scm")
 (include "commands.scm")
 
 (include "modes.scm")
@@ -23,10 +26,19 @@
 ; Then, if matching in a sub keybinding, poll for an other keypress
 ; until (mode-match-keypress) gives back a proc or nothing.
 (define (poll-input keybinding)
-  (let ([current-key-handler (mode-match-keypress keybinding (term-readch))])
-    (debug-pp current-key-handler)
-    (cond [(procedure? current-key-handler) (current-key-handler)]
-          [(list? current-key-handler) (poll-input current-key-handler)])))
+  (term-poll (lambda (mod key ch)
+    (cond [(eq? key key-esc) (set! ch key)]
+          [(eq? key key-tab) (set! ch key)]
+          [(eq? key key-enter) (set! ch key)]
+          [(eq? key key-space) (set! ch key)]
+          [(eq? key key-backspace) (set! ch key)]
+          [(eq? key key-backspace2) (set! ch key)])
+    (if (eq? key key-ctrl-c)
+      (kill-ry))
+    (debug-pp (list 'poll-recieve mod key (integer->char ch)))
+    (let ([current-key-handler (mode-match-keypress keybinding (integer->char ch))])
+      (cond [(procedure? current-key-handler) (current-key-handler)]
+            [(list? current-key-handler) (poll-input current-key-handler)])))))
 
 ; Main application loop, at this point our code is wrapped in exception
 ; handling.
@@ -39,24 +51,21 @@
 ; After that we loop alternating between rendering and polling for keys
 (define (main-loop)
   ; setup
-  (let ([filename (car (command-line-arguments))])
-    (if (null? filename)
-      (add-buffer (new-buffer))
-      (add-buffer (new-buffer-from-file filename))))
+  (if (null? (command-line-arguments))
+    (add-buffer (new-buffer))
+    (add-buffer (new-buffer-from-file (car (command-line-arguments)))))
   (init-window-tree (get-buffer-by-number 0))
   (enter-mode 'normal)
   (set-minibuffer-message "Thanks for using ry!")
 
   ; loop
   (let loop ()
-    (if *running*
-      (begin
-        (term-update)
-        (display-windows)
-        (display-minibuffer)
-        (term-flush)
-        (poll-input (current-mode-keybinding))
-        (loop)))))
+    (term-update)
+    (display-windows)
+    (display-minibuffer)
+    (term-flush)
+    (poll-input (current-mode-keybinding))
+    (when *running* (loop))))
 
 (define (handle-exception exn)
   (term-shutdown)
