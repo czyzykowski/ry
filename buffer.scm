@@ -29,6 +29,9 @@
           (cons 'pointer (cons 0 0))
           (cons 'lines file-lines))))
 
+(define (current-buffer)
+  (window-buffer (current-window)))
+
 (define (add-buffer buffer)
   (set! *buffers* (cons buffer *buffers*)))
 

@@ -1,6 +1,8 @@
 (define (kill-ry)
   (set-running-state #f))
 
+(define q kill-ry)
+
 ; TODO Actually save
 (define (save-buffers-kill-ry)
   (kill-ry))

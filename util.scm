@@ -6,7 +6,7 @@
 
 (define (set-assq al key value)
   (cond [(null? al) al]
-        [(eq? key (caar al)) (cons (list key value) (cdr al))]
+        [(eq? key (caar al)) (cons (cons key value) (cdr al))]
         [else (cons (car al) (set-assq (cdr al) key value))]))
 
 (define *rgb-cubelevels* (list #x00 #x5f #x87 #xaf #xd7 #xff))
@@ -44,17 +44,6 @@
 
 (define (int-for-char=? ch num)
   (char=? ch (integer->char num)))
-
-(define (pos-nudge-xy pos x-change y-change)
-  (cons
-    (+ (car pos) x-change)
-    (+ (cdr pos) y-change)))
-
-(define (pos-nudge-x pos x-change)
-  (pos-nudge-xy pos x-change 0))
-
-(define (pos-nudge-y pos y-change)
-  (pos-nudge-xy pos 0 y-change))
 
 (define (lines-height lines)
   (if (not (null? lines))

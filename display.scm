@@ -1,15 +1,25 @@
 (define (display-buffer window x y width height)
-  (define left-gutter-width 1)
+  (define left-gutter-width (+ 1 (string-length (number->string (+ height 1)))))
+
+  (if (window-focused? window)
+    (let ([pointer (buffer-pointer (window-buffer window))])
+      (term-move (+ x left-gutter-width (car pointer)) (+ y (cdr pointer)))))
+
   (let loop ([lines (buffer-lines (window-buffer window))]
              [current-y 0])
-    (if (<= current-y (+ y height))
+    (when (<= current-y height)
+      (term-display-with x y term-c-white term-c-default #f (lambda (d)
+        (d 0 current-y (string-append-char
+          (string-pad (number->string (+ current-y 1)) (- left-gutter-width 1))
+          #\space))))
       (if (null? lines)
         (begin
-          (term-display-with 0 0 term-c-black-light term-c-default #f (lambda (d)
-            (d left-gutter-width current-y "~")));"࿋")))
+          (term-display-with x y term-c-white term-c-default #f (lambda (d)
+            (d left-gutter-width current-y (string-pad-right "~" width))));"࿋")))
           (loop '() (+ current-y 1)))
         (begin
-          (term-display left-gutter-width current-y (car lines))
+          (term-display-with x y term-c-white term-c-default #f (lambda (d)
+            (d left-gutter-width current-y (string-pad-right (car lines) width))))
           (loop (cdr lines) (+ current-y 1)))))))
 
 (define (display-status-bar window x y width)
@@ -30,9 +40,6 @@
       (d (- width (string-length mode-text) 3) 0 (string-append "(" mode-text ")"))))))
 
 (define (display-window window x y width height)
-  (if (window-focused? window)
-    (let ([pointer (buffer-pointer (window-buffer window))])
-      (term-move (+ x (car pointer)) (+ y (cdr pointer)))))
   (display-buffer window x y width (- height 1))
   (display-status-bar window x (+ y height -1) width))
 

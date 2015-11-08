@@ -52,12 +52,15 @@
               (assq 'top (map-windows fn (assq 'top window)))
               (assq 'bottom (map-windows fn (assq 'bottom window))))])))
 
+(define (map-window-leafs! fn)
+  (set! *window-tree*
+    (map-window-leafs fn *window-tree*)))
+
 ; Finds the first window marked as focused
 (define (current-window)
   (call-with-current-continuation
     (lambda (k)
       (map-window-leafs
         (lambda (win)
-          (if (eq? (assq 'focused win) #t)
-            (k win)))
+          (if (window-focused? win) (k win)))
         *window-tree*))))
