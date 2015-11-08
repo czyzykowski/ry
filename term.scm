@@ -54,19 +54,19 @@
 (define (term-move x y)
   (cursor-set! x y))
 
+(define (term-create-cells string fg bg)
+  (map (lambda (x) (create-cell x fg bg))
+       (string->list string)))
+
 (define (term-display x y text #!optional
-                               (fg term-c-black)
-                               (bg term-c-default)
-                               (attr #f))
+                               (fg term-c-black) (bg term-c-default) (attr #f))
   (let* ([fg-style (if attr (style fg attr) (style fg))]
          [bg-style (style bg)]
-         [cells (create-cells text fg-style bg-style)])
-    (let loop ([i 0]
-              [cells-left cells])
-      (if (not (null? cells-left))
-        (begin
-          (put-cell! (+ x i) y (car cells-left))
-          (loop (+ i 1) (cdr cells-left)))))))
+         [cells (term-create-cells text fg-style bg-style)])
+    (let loop ([i 0][cells-left cells])
+      (when (not (or (null? cells-left) (null-list? cells-left)))
+        (put-cell! (+ x i) y (car cells-left))
+        (loop (+ i 1) (cdr cells-left))))))
 
 (define (term-display-with base-x base-y fg bg attr fn)
   (fn (lambda (x y text)
