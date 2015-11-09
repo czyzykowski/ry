@@ -20,7 +20,8 @@
   window)
 
 (define (display-buffer window x y width height)
-  (define left-gutter-width (+ 1 (string-length (number->string (+ height 1)))))
+  (define left-gutter-width (+ 1 (string-length
+    (number->string (+ (length (buffer-lines (window-buffer window))) 1)))))
   (set! window (update-cursor window x y width height left-gutter-width))
 
   (let loop ([lines (buffer-lines (window-buffer window))]

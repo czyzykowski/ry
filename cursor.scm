@@ -35,6 +35,14 @@
   (update-current-buffer-pointer (lambda (buffer)
     (pos-nudge-y (buffer-pointer buffer) 1))))
 
+(define (previous-line-jump)
+  (update-current-buffer-pointer (lambda (buffer)
+    (pos-nudge-y (buffer-pointer buffer) -15))))
+
+(define (next-line-jump)
+  (update-current-buffer-pointer (lambda (buffer)
+    (pos-nudge-y (buffer-pointer buffer) 15))))
+
 (define (backward-char)
   (update-current-buffer-pointer (lambda (buffer)
     (pos-nudge-x (buffer-pointer buffer) -1))))

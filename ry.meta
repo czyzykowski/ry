@@ -1,7 +1,6 @@
-(
-(license "MIT")
-(category tools)
-(needs termbox format utf8 linenoise)
-(test-depends test)
-(author "Frederic Gingras")
-(synopsis "Basic modal editor."))
+((license "MIT")
+ (category tools)
+ (needs termbox format utf8 alist-lib linenoise)
+ (test-depends test)
+ (author "Frederic Gingras")
+ (synopsis "Basic modal editor."))

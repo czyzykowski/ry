@@ -1,4 +1,5 @@
-(use srfi-1 termbox format files posix utils)
+(import chicken scheme)
+(use termbox format alist-lib posix utils)
 (require-extension utf8)
 (require-extension utf8-srfi-13)
 (require-extension utf8-srfi-14)
@@ -27,16 +28,49 @@
 ; until (mode-match-keypress) gives back a proc or nothing.
 (define (poll-input keybinding)
   (term-poll (lambda (mod key ch)
-    (cond [(eq? key key-esc) (set! ch key)]
-          [(eq? key key-tab) (set! ch key)]
-          [(eq? key key-enter) (set! ch key)]
-          [(eq? key key-space) (set! ch key)]
-          [(eq? key key-backspace) (set! ch key)]
-          [(eq? key key-backspace2) (set! ch key)])
+    (define ctrl? #f)
+    (define char (integer->char ch))
+
+    (cond [(eq? key key-esc)        (set! char #\escape)]
+          [(eq? key key-tab)        (set! char #\tab)]
+          [(eq? key key-enter)      (set! char #\x0D)]
+          [(eq? key key-space)      (set! char #\space)]
+          [(eq? key key-backspace)  (set! char #\backspace)]
+          [(eq? key key-backspace2) (set! char #\delete)]
+          [(eq? key key-delete)     (set! char #\delete)]
+          [(eq? key key-ctrl-a)     (set! char #\a) (set! ctrl? #t)]
+          [(eq? key key-ctrl-b)     (set! char #\b) (set! ctrl? #t)]
+          [(eq? key key-ctrl-c)     (set! char #\c) (set! ctrl? #t)]
+          [(eq? key key-ctrl-d)     (set! char #\d) (set! ctrl? #t)]
+          [(eq? key key-ctrl-e)     (set! char #\e) (set! ctrl? #t)]
+          [(eq? key key-ctrl-f)     (set! char #\f) (set! ctrl? #t)]
+          [(eq? key key-ctrl-g)     (set! char #\g) (set! ctrl? #t)]
+          [(eq? key key-ctrl-h)     (set! char #\h) (set! ctrl? #t)]
+          [(eq? key key-ctrl-i)     (set! char #\i) (set! ctrl? #t)]
+          [(eq? key key-ctrl-j)     (set! char #\j) (set! ctrl? #t)]
+          [(eq? key key-ctrl-k)     (set! char #\k) (set! ctrl? #t)]
+          [(eq? key key-ctrl-l)     (set! char #\l) (set! ctrl? #t)]
+          [(eq? key key-ctrl-m)     (set! char #\m) (set! ctrl? #t)]
+          [(eq? key key-ctrl-n)     (set! char #\n) (set! ctrl? #t)]
+          [(eq? key key-ctrl-o)     (set! char #\o) (set! ctrl? #t)]
+          [(eq? key key-ctrl-p)     (set! char #\p) (set! ctrl? #t)]
+          [(eq? key key-ctrl-q)     (set! char #\q) (set! ctrl? #t)]
+          [(eq? key key-ctrl-r)     (set! char #\r) (set! ctrl? #t)]
+          [(eq? key key-ctrl-s)     (set! char #\s) (set! ctrl? #t)]
+          [(eq? key key-ctrl-t)     (set! char #\t) (set! ctrl? #t)]
+          [(eq? key key-ctrl-u)     (set! char #\u) (set! ctrl? #t)]
+          [(eq? key key-ctrl-v)     (set! char #\v) (set! ctrl? #t)]
+          [(eq? key key-ctrl-w)     (set! char #\w) (set! ctrl? #t)]
+          [(eq? key key-ctrl-x)     (set! char #\x) (set! ctrl? #t)]
+          [(eq? key key-ctrl-y)     (set! char #\y) (set! ctrl? #t)]
+          [(eq? key key-ctrl-z)     (set! char #\z) (set! ctrl? #t)])
+
     (if (eq? key key-ctrl-c)
       (kill-ry))
-    (debug-pp (list 'poll-recieve mod key (integer->char ch)))
-    (let ([current-key-handler (mode-match-keypress keybinding (integer->char ch))])
+
+    (let* ([key-pressed (make-key% (eq? mod mod-alt) ctrl? char)]
+           [current-key-handler (mode-match-keypress keybinding key-pressed)])
+      (debug-pp (list key-pressed current-key-handler))
       (cond [(procedure? current-key-handler) (current-key-handler)]
             [(list? current-key-handler) (poll-input current-key-handler)])))))
 
