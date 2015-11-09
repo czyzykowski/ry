@@ -34,7 +34,7 @@ language, you can change virtually everything in your plugins.
   - <kbd>d</kbd><kbd>h</kbd> or <kbd>d</kbd><kbd>j</kbd> Deletes char left of cursor  (`delete-backward-char`)
   - <kbd>d</kbd><kbd>k</kbd> or <kbd>d</kbd><kbd>l</kbd> Deletes char right of cursor  (`delete-forward-char`)
   - <kbd>:</kbd> Asks for a command in the minibuffer and eval's it (`smex`)
-  - <kbd>x</kbd> Deletes char under cursor (`delete-char`)
+  - <kbd>x</kbd> Deletes char under cursor (`delete-char-under-cursor`)
 - Insert mode
   - <kbd>any visible chars</kbd> Inserts character at cursor's position (`self-insert-char`)
   - <kbd>backspace</kbd> Deletes character to the left

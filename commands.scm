@@ -104,12 +104,12 @@
 (define (kill-whole-line)
   (update-current-buffer-prop 'lines (lambda (buffer)
     (delete-line% (buffer-lines buffer) (cdr (buffer-pointer buffer)))))
-  (update-current-buffer-pointer (lambda (buffer)
-    (buffer-pointer buffer))))
+  (ensure-valid-pointer))
 
 (define (delete-char)
   (update-current-buffer-prop 'lines (lambda (buffer)
-    (delete-char% (buffer-lines buffer) (buffer-pointer buffer)))))
+    (delete-char% (buffer-lines buffer) (buffer-pointer buffer))))
+  (ensure-valid-pointer))
 
 (define (delete-backward-char)
   (if (eq? (car (buffer-pointer (current-buffer))) 0)
@@ -127,6 +127,16 @@
       (delete-char))))
 
 (define delete-forward-char delete-char)
+
+(define (delete-char-under-cursor)
+  (let* ([buffer (current-buffer)]
+         [pointer (buffer-pointer buffer)]
+         [lines (buffer-lines buffer)])
+  (if (eq? (car pointer) (string-length (list-ref lines (cdr pointer))))
+    (begin
+      (backward-char)
+      (delete-char))
+    (delete-forward-char))))
 
 (define (insert-line-up)
   (update-current-buffer-prop 'lines (lambda (buffer)

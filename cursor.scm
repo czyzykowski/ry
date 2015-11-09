@@ -17,11 +17,15 @@
          [ny (cond [(> y height) height]
                    [(< y 0) 0]
                    [else y])]
-         [width (+ (lines-width lines ny) 1)]
+         [width (+ (lines-width lines ny) (if (eq? (current-mode-name) 'insert) 1 0))]
          [nx (cond [(> x width) width]
                    [(< x 0) 0]
                    [else x])])
     (cons nx ny)))
+
+(define (ensure-valid-pointer)
+  (update-current-buffer-pointer (lambda (buffer)
+    (buffer-pointer buffer))))
 
 (define (previous-line)
   (update-current-buffer-pointer (lambda (buffer)

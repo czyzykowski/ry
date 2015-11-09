@@ -67,8 +67,8 @@
       (list
         (cons #\q save-buffers-kill-ry)
         (cons #\i (lambda () (enter-mode 'insert)))
-        (cons #\a (lambda () (forward-char) (enter-mode 'insert)))
-        (cons #\A (lambda () (end-of-line) (enter-mode 'insert)))
+        (cons #\a (lambda () (enter-mode 'insert) (forward-char)))
+        (cons #\A (lambda () (enter-mode 'insert) (end-of-line)))
         (cons #\0 beginning-of-line)
         (cons #\$ end-of-line)
         (cons #\o (lambda () (insert-line-down) (enter-mode 'insert)))
@@ -86,7 +86,7 @@
               (cons #\k delete-forward-char)
               (cons #\l delete-forward-char))))
         (cons #\: smex)
-        (cons #\x delete-char)
+        (cons #\x delete-char-under-cursor)
         (cons #\r (self-inserting-char-list change-char))))))
 
 (define insert-mode
