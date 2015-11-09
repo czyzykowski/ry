@@ -7,6 +7,14 @@ _A basic modal text editor, written in Chicken Scheme_
 To build and install `ry` on your computer simply run `chicken-install` from the
 project's root directory.
 
+### developing
+
+```bash
+$ make run 2> error.log # Build ry & runs it, redirecting error/debug to file
+$ tail -f error.log # Stream error/debug info to standard out
+$ make repl # Run a chicken scheme repl with history (backed by linenoise)
+```
+
 ### features
 
 `ry` is a text editor aiming to provide an editing environment similar to `vim`
@@ -35,10 +43,16 @@ language, you can change virtually everything in your plugins.
   - <kbd>d</kbd><kbd>k</kbd> or <kbd>d</kbd><kbd>l</kbd> Deletes char right of cursor  (`delete-forward-char`)
   - <kbd>:</kbd> Asks for a command in the minibuffer and eval's it (`smex`)
   - <kbd>x</kbd> Deletes char under cursor (`delete-char-under-cursor`)
+  - <kbd>Ctrl</kbd>+<kbd>x</kbd> <kbd>Ctrl</kbd>+<kbd>f</kbd> Open file (`open-file`)
+  - <kbd>Ctrl</kbd>+<kbd>x</kbd> <kbd>Ctrl</kbd>+<kbd>c</kbd> Quit (`kill-ry`)
 - Insert mode
   - <kbd>any visible chars</kbd> Inserts character at cursor's position (`self-insert-char`)
   - <kbd>backspace</kbd> Deletes character to the left
   - <kbd>esc</kbd> Enters normal mode  (`enter-normal-mode`)
+
+### screenshot
+
+![](https://raw.githubusercontent.com/kiasaki/scheme-ry/master/support/screenshot.png)
 
 ### todo
 
