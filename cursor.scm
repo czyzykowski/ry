@@ -13,7 +13,7 @@
   (let* ([x (car new-pointer)]
          [y (cdr new-pointer)]
          [lines (buffer-lines buffer)]
-         [height (lines-height lines)]
+         [height (+ (lines-height lines) (if (eq? (current-mode-name) 'insert) 1 0))]
          [ny (cond [(> y height) height]
                    [(< y 0) 0]
                    [else y])]
