@@ -58,3 +58,11 @@
 (define (end-of-line)
   (update-current-buffer-pointer (lambda (buffer)
     (pos-nudge-x (buffer-pointer buffer) 10000))))
+
+(define (beginning-of-buffer)
+  (update-current-buffer-pointer (lambda (buffer)
+    (cons 0 0))))
+
+(define (end-of-buffer)
+  (update-current-buffer-pointer (lambda (buffer)
+    (cons 0 (length (buffer-lines buffer))))))

@@ -102,6 +102,11 @@
         (cons "l" forward-char)
         (cons "C-d" next-line-jump)
         (cons "C-u" previous-line-jump)
+        (cons "g"
+          (define-binding
+            (list
+            (cons "g" beginning-of-buffer))))
+        (cons "G" end-of-buffer)
         (cons "d"
           (define-binding
             (list
