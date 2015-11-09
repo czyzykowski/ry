@@ -1,10 +1,10 @@
 (define *window-tree* '())
 
-(define (new-window-leaf buffer)
+(define (new-window-leaf buffer-n)
   (list (cons 'type 'leaf)
         (cons 'focused? #f)
         (cons 'offsets (cons 0 0))
-        (cons 'buffer buffer)))
+        (cons 'buffer buffer-n)))
 
 ; type=[left, horizontal, vertical]
 ; position=[left, right, top, bottom]
@@ -24,7 +24,7 @@
   (cdr (assq 'type window)))
 
 (define (window-buffer window)
-  (cdr (assq 'buffer window)))
+  (get-buffer-by-number (cdr (assq 'buffer window))))
 
 (define (window-offsets window)
   (cdr (assq 'offsets window)))
@@ -32,12 +32,9 @@
 (define (window-focused? window)
   (cdr (assq 'focused? window)))
 
-(define (init-window-tree buffer)
-  (let ([root-window (new-window-leaf buffer)])
-    (set! *window-tree* (window-set-focused (new-window-leaf buffer) #t))))
-
-(define (add-window window)
-  (set! *window-tree* (cons window *window-tree*)))
+(define (init-window-tree buffer-n)
+  (let ([root-window (new-window-leaf buffer-n)])
+    (set! *window-tree* (window-set-focused root-window #t))))
 
 (define (window-tree)
   *window-tree*)

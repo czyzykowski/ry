@@ -43,7 +43,8 @@ language, you can change virtually everything in your plugins.
 ### todo
 
 - highlighting
-- better key mapping (support for ctrl & meta)
+- ~~better key mapping (support for ctrl & meta)~~
+- <kbd>zz</kbd>
 - kill-ring (with named registers)
 - saving
 - undo/redo

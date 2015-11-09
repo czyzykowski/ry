@@ -85,12 +85,12 @@
 ; After that we loop alternating between rendering and polling for keys
 (define (main-loop)
   ; setup
-  (if (null? (command-line-arguments))
-    (add-buffer (new-buffer))
-    (add-buffer (new-buffer-from-file (car (command-line-arguments)))))
-  (init-window-tree (get-buffer-by-number 0))
-  (enter-mode 'normal)
-  (set-minibuffer-message "Thanks for using ry!")
+  (let ([buffer-n (if (null? (command-line-arguments))
+          (add-buffer (new-buffer))
+          (add-buffer (new-buffer-from-file (car (command-line-arguments)))))])
+    (init-window-tree buffer-n)
+    (enter-mode 'normal)
+    (set-minibuffer-message "Thanks for using ry!"))
 
   ; loop
   (let loop ()

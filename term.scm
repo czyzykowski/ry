@@ -21,6 +21,7 @@
 (define term-c-cyan-light 14);(hex->term #xB02F30))
 (define term-c-white 7);(hex->term #x9EA7A6))
 (define term-c-white-light 15);(hex->term #xb5d8f6))
+(define term-c-gray 240)
 
 (define term-a-bold bold)
 (define term-a-underline underline)

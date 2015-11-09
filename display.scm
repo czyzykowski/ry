@@ -21,20 +21,23 @@
 
 (define (display-buffer window x y width height)
   (define left-gutter-width (+ 1 (string-length
-    (number->string (+ (length (buffer-lines (window-buffer window))) 1)))))
+    (number->string
+      (max
+        (+ (length (buffer-lines (window-buffer window))) 1)
+        height)))))
   (set! window (update-cursor window x y width height left-gutter-width))
 
   (let loop ([lines (buffer-lines (window-buffer window))]
              [current-y 0]
              [current-buffer-y (abs (cdr (window-offsets window)))])
     (when (<= current-y height)
-      (term-display-with x y term-c-white term-c-default #f (lambda (d)
+      (term-display-with x y term-c-gray term-c-default #f (lambda (d)
         (d 0 current-y (string-append-char
           (string-pad (number->string (+ current-buffer-y 1)) (- left-gutter-width 1))
           #\space))))
       (if (>= current-buffer-y (length lines))
-        (term-display-with x y term-c-white term-c-default #f (lambda (d)
-          (d left-gutter-width current-y (string-pad-right "ø" width))))
+        (term-display-with x y term-c-gray term-c-default #f (lambda (d)
+          (d left-gutter-width current-y (string-pad-right "~" width))))
         (term-display-with x y term-c-white-light term-c-default #f (lambda (d)
           (d left-gutter-width current-y (string-pad-right (list-ref lines current-buffer-y) width)))))
       (loop lines (+ current-y 1) (+ current-buffer-y 1)))))
@@ -50,7 +53,7 @@
          [pos-text (string-append "(" pos-text-x ", " pos-text-y ")")]
          [mode-text (symbol->string (current-mode-name))]
          [bg-color (if (window-focused? window) term-c-blue term-c-blue-light)])
-    (term-display-with x y term-c-white bg-color #f (lambda (d)
+    (term-display-with x y term-c-black bg-color #f (lambda (d)
       (d 0 0 (make-string width #\-))
       (d 1 0 buffer-state-text)
       (d 4 0 (string-append " " (buffer-name buffer) " " pos-text " "))
@@ -79,6 +82,8 @@
 
 ; Render minibuffer's current state
 (define (display-minibuffer% minibuffer-text minibuffer-error?)
+  (if (eq? (current-mode-name) 'command)
+    (term-move (string-length minibuffer-text) (- term-height 1)))
   (let ([fg-color (if minibuffer-error? term-c-red term-c-white)])
     (term-display-with 0 0 fg-color term-c-default #f
       (lambda (d)

@@ -102,19 +102,19 @@
         (cons "l" forward-char)
         (cons "C-d" next-line-jump)
         (cons "C-u" previous-line-jump)
-        (cons "g"
-          (define-binding
-            (list
-            (cons "g" beginning-of-buffer))))
+        (cons "g" (define-binding (list
+          (cons "g" beginning-of-buffer))))
         (cons "G" end-of-buffer)
-        (cons "d"
-          (define-binding
-            (list
-              (cons "d" kill-whole-line)
-              (cons "h" delete-backward-char)
-              (cons "j" delete-backward-char)
-              (cons "k" delete-forward-char)
-              (cons "l" delete-forward-char))))
+        (cons "C-x" (define-binding (list
+          (cons "C-s" save-file)
+          (cons "C-f" open-file)
+          (cons "C-c" kill-ry))))
+        (cons "d" (define-binding (list
+          (cons "d" kill-whole-line)
+          (cons "h" delete-backward-char)
+          (cons "j" delete-backward-char)
+          (cons "k" delete-forward-char)
+          (cons "l" delete-forward-char))))
         (cons ":" smex)
         (cons "x" delete-char-under-cursor)
         (cons "r" (self-inserting-char-list change-char))))))
@@ -138,6 +138,6 @@
         (self-inserting-char-list command-mode-insert-char)
         (list
           (cons "enter" command-mode-commit)
-          (cons "escape" normal-mode)
+          (cons "escape" (lambda () (set-minibuffer-message "") (enter-mode 'normal)))
           (cons "backspace" command-mode-delete-char)
           (cons "delete" command-mode-delete-char))))))

@@ -14,12 +14,10 @@
 
 (define (command-mode-insert-char ch)
   (lambda ()
-    (set-minibuffer-message (string-append-char minibuffer-text ch))
-    (term-move (string-length minibuffer-text) (- term-height 1))))
+    (set-minibuffer-message (string-append-char minibuffer-text ch))))
 
 (define (command-mode-delete-char)
-  (set-minibuffer-message (string-drop-right minibuffer-text 1))
-  (term-move (string-length minibuffer-text) (- term-height 1)))
+  (set-minibuffer-message (string-drop-right minibuffer-text 1)))
 
 (define (command-mode-commit)
   (let ([text minibuffer-text]
@@ -33,7 +31,6 @@
 
 (define (edit-minibuffer input-text fn)
   (set-minibuffer-message input-text)
-  (term-move (string-length input-text) (- term-height 1))
   (command-mode-previous-mode (current-mode-name))
   (enter-mode 'command)
   (command-mode-handler fn))

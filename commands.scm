@@ -25,6 +25,23 @@
 (define (smex)
   (edit-minibuffer "(" smex-commit))
 
+(define *text-save-file* "Save file to: ")
+(define *text-open-file* "Open file: ")
+
+(define (save-file)
+  (edit-minibuffer *text-save-file* (lambda (command-text)
+    #f)))
+
+(define (open-file)
+  (edit-minibuffer *text-open-file* (lambda (command-text)
+    (let* ([ques-length (string-length *text-open-file*)]
+           [comm-length (string-length command-text)]
+           [filename (substring command-text ques-length comm-length)]
+           [buffer (new-buffer-from-file filename)])
+      (add-buffer buffer)
+      (update-current-window-prop 'buffer (lambda (window)
+        buffer))))))
+
 ; Splits a list in two at a define `elt` index
 (define (split-elt l elt)
   (let loop ((head '())
