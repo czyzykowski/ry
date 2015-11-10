@@ -75,7 +75,7 @@
     (try-move buffer (fn buffer)))))
 
 (define (buffer-save buffer)
-  (let* ([flags (file-open "/tmp/hen.txt" (+ open/wronly open/append open/creat))]
+  (let* ([flags (+ open/wronly open/creat)]
          [file-descriptor (file-open (buffer-location buffer) flags)])
     (file-write file-descriptor (string-join (buffer-lines buffer) "\n"))))
 
