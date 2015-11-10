@@ -4,3 +4,4 @@
  (test-depends test)
  (author "Frederic Gingras")
  (synopsis "Basic modal editor."))
+ (asd)

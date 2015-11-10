@@ -31,9 +31,8 @@
     exn
     (cons #f (string-append "Error: "
                ((condition-property-accessor 'exn 'message) exn)))
-    (cons #t (string-trim-both
-               (format #f "~Y"
-                 (eval (with-input-from-string input-text read)))))))
+    (let ([result (eval (with-input-from-string input-text read))])
+      (cons #t (if result (string-trim-both (format #f "~Y" result)) #f)))))
 
 (define (char-visible? ch)
   (let ([ascii-num (char->integer ch)])

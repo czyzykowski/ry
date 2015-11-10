@@ -69,6 +69,7 @@ language, you can change virtually everything in your plugins.
 - completion in opening file
 - configuration options
 - change directory
+- hooks (enter mode, exit mode, new buffer, read buffer,...) a la aucmd
 
 ### license
 

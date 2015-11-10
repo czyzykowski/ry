@@ -1,8 +1,6 @@
 (define (kill-ry)
   (set-running-state #f))
 
-(define q kill-ry)
-
 ; TODO Actually save
 (define (save-buffers-kill-ry)
   (kill-ry))
@@ -17,7 +15,8 @@
                 (string-append command-text ")"))]
             [eval-result (eval-string corrected-command-text)])
       (if (car eval-result)
-        (set-minibuffer-message (cdr eval-result))
+        (when (cdr eval-result)
+          (set-minibuffer-message (cdr eval-result)))
         (set-minibuffer-error (cdr eval-result))))))
 
 ; `smex` reading input from the minibuffer and evals it
@@ -25,18 +24,39 @@
 (define (smex)
   (edit-minibuffer "(" smex-commit))
 
+(define (entered-command% question-text command-text)
+  (substring command-text
+    (string-length question-text)
+    (string-length command-text)))
+
 (define *text-save-file* "Save file to: ")
 (define *text-open-file* "Open file: ")
 
+; Save current file to disk
 (define (save-file)
-  (edit-minibuffer *text-save-file* (lambda (command-text)
-    #f)))
+  (let* ([buffer (current-buffer)]
+         [lines (buffer-lines buffer)])
+    (if (buffer-location buffer)
+      ; save file
+      (begin
+        (buffer-save buffer)
+        (set-minibuffer-message (string-append
+          "Written: \"" (buffer-name buffer) "\" "
+          (number->string (length lines)) "L, "
+          (number->string (string-length (string-join lines "\n"))) "C")))
+      ; ask for filename & then save
+      (edit-minibuffer *text-save-file* (lambda (command-text)
+        (update-current-buffer-prop 'location (lambda (buffer)
+          (let ([filename (entered-command% *text-save-file* command-text)])
+            (if (absolute-pathname? filename)
+              filename
+              (make-pathname (current-directory) filename)))))
+        (save-file)))))
+  #f)
 
 (define (open-file)
   (edit-minibuffer *text-open-file* (lambda (command-text)
-    (let* ([ques-length (string-length *text-open-file*)]
-           [comm-length (string-length command-text)]
-           [filename (substring command-text ques-length comm-length)]
+    (let* ([filename (entered-command% *text-open-file* command-text)]
            [buffer (new-buffer-from-file filename)])
       (add-buffer buffer)
       (update-current-window-prop 'buffer (lambda (window)
@@ -165,3 +185,8 @@
   (update-current-buffer-prop 'lines (lambda (buffer)
     (insert-line% (buffer-lines buffer) (cdr (buffer-pointer buffer)))))
   (beginning-of-line))
+
+;;; Shortcuts
+(define q kill-ry)
+(define quit kill-ry)
+(define w save-file)

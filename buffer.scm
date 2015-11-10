@@ -24,13 +24,13 @@
 
 (define (new-buffer-from-file filename)
   (let* ([full-filename (if (absolute-pathname? filename)
-                         filename
-                         (make-pathname (current-directory) filename))]
+                          filename
+                          (make-pathname (current-directory) filename))]
          [file-exists (file-exists? full-filename)]
          [file-lines (if file-exists (string-split (read-all full-filename) "\n" #t) '())])
     (list (cons 'modified? #f)
           (cons 'readonly? #f)
-          (cons 'name (pathname-strip-directory full-filename))
+          (cons 'name filename)
           (cons 'location full-filename)
           (cons 'pointer (cons 0 0))
           (cons 'lines file-lines))))
@@ -55,6 +55,9 @@
 (define (buffer-pointer buffer)
   (cdr (assq 'pointer buffer)))
 
+(define (buffer-location buffer)
+  (cdr (assq 'location buffer)))
+
 (define (buffer-lines buffer)
   (cdr (assq 'lines buffer)))
 
@@ -70,3 +73,9 @@
 (define (update-current-buffer-pointer fn)
   (update-current-buffer-prop 'pointer (lambda (buffer)
     (try-move buffer (fn buffer)))))
+
+(define (buffer-save buffer)
+  (let* ([flags (file-open "/tmp/hen.txt" (+ open/wronly open/append open/creat))]
+         [file-descriptor (file-open (buffer-location buffer) flags)])
+    (file-write file-descriptor (string-join (buffer-lines buffer) "\n"))))
+
