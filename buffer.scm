@@ -27,7 +27,7 @@
                           filename
                           (make-pathname (current-directory) filename))]
          [file-exists (file-exists? full-filename)]
-         [file-lines (if file-exists (string-split (read-all full-filename) "\n" #t) '())])
+         [file-lines (if file-exists (string-split (string-trim-right (read-all full-filename) #\newline) "\n" #t) '())])
     (list (cons 'modified? #f)
           (cons 'readonly? #f)
           (cons 'name filename)
@@ -77,5 +77,5 @@
 (define (buffer-save buffer)
   (let* ([flags (+ open/wronly open/creat)]
          [file-descriptor (file-open (buffer-location buffer) flags)])
-    (file-write file-descriptor (string-join (buffer-lines buffer) "\n"))))
+    (file-write file-descriptor (string-join (buffer-lines buffer) "\n" 'suffix))))
 
