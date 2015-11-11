@@ -75,6 +75,11 @@
              (cdr tail)
              (+ i 1))))))
 
+(define (split-elt-cell l elt)
+  (call-with-values
+    (lambda () (split-elt l elt))
+    (lambda (lhead lrest) (cons lhead lrest))))
+
 (define (insert-string% lines pos str)
   (call-with-values
     (lambda () (split-elt lines (cdr pos)))
@@ -120,6 +125,24 @@
             (lambda (lhead lrest) (append head (cons (list->string (append lhead (cdr lrest))) (cdr rest)))))))
         lines)
       lines))
+
+; Deletes a x1 to x2 part of a line
+; returns (cons string-removed new-lines)
+(define (delete-line-part% lines y x1 x2)
+  (if (and (< y (length lines)) (>= y 0))
+    (if (and (< x1 (string-length (list-ref lines y))) (>= x1 0))
+      (let* ([splitted-lines (split-elt-cell lines y)]
+             [splitted-line (split-elt-cell (string->list (car (cdr splitted-lines))) x1)]
+             [end-splitted-line (split-elt-cell (cdr splitted-line) (- x2 x1))])
+        (cons
+          (list->string (car end-splitted-line))
+          (append
+            (car splitted-lines)
+            (list (list->string (append (car splitted-line) (cdr end-splitted-line))))
+            (cdr (cdr splitted-lines)))))
+      (cons "" lines))
+    (cons "" lines)))
+
 (define (insert-line% lines line)
   (if (< line (length lines))
     (call-with-values
@@ -184,6 +207,23 @@
   (next-line)
   (update-current-buffer-prop 'lines (lambda (buffer)
     (insert-line% (buffer-lines buffer) (cdr (buffer-pointer buffer)))))
+  (beginning-of-line))
+
+(define (newline-at-pointer)
+  (update-current-buffer-prop 'lines (lambda (buffer)
+    (let* ([pointer (buffer-pointer buffer)]
+          [lines (buffer-lines buffer)]
+          [current-line (if (< (cdr pointer) (length lines)) (list-ref lines (cdr pointer)) "")]
+          [current-line-length (max (string-length current-line) 0)]
+          [new-line-part-and-lines (delete-line-part% lines
+            (cdr pointer) (car pointer) current-line-length)]
+          [next-line-y (+ (cdr pointer) 1)]
+          [lines-with-blank-line (insert-line%
+            (cdr new-line-part-and-lines) next-line-y)]
+          [lines-with-text-on-new-line (insert-string%
+            lines-with-blank-line (cons 0 next-line-y) (car new-line-part-and-lines))])
+      lines-with-text-on-new-line)))
+  (next-line)
   (beginning-of-line))
 
 ;;; Shortcuts

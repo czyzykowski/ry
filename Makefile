@@ -14,7 +14,7 @@ clean:
 	rm ry
 
 run:
-	DEBUG=1 chicken-install && ry ry.meta
+	chicken-install && DEBUG=1 ry ry.scm
 
 repl:
 	@csi -s support/repl.scm

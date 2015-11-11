@@ -1,19 +1,6 @@
 (define *buffers* '())
 (define *buffers-index* 0)
 
-(define (kill-buffer-by-number n)
-  (set! *buffers* (del-assq n *buffers*)))
-
-(define (get-buffer-by-number n)
-  (let loop ([buffers *buffers*])
-    (cond [(null? buffers) #f]
-          [else (if (eq? n (caar buffers))
-                  (cdar buffers)
-                  (loop (cdr buffers)))])))
-
-(define (map-buffers! fn)
-  (set! *buffers* (alist-map fn *buffers*)))
-
 (define (new-buffer)
   (list (cons 'modified? #f)
         (cons 'readonly? #f)
@@ -35,13 +22,31 @@
           (cons 'pointer (cons 0 0))
           (cons 'lines file-lines))))
 
-(define (current-buffer)
-  (window-buffer (current-window)))
+(define (kill-buffer-by-number n)
+  (set! *buffers* (del-assq n *buffers*)))
+
+(define (get-buffer-by-number n)
+  (let loop ([buffers *buffers*])
+    (cond [(null? buffers) #f]
+          [else (if (eq? n (caar buffers))
+                  (cdar buffers)
+                  (loop (cdr buffers)))])))
+
+(define (map-buffers! fn)
+  (set! *buffers* (alist-map fn *buffers*)))
 
 (define (add-buffer buffer)
   (set! *buffers-index* (+ *buffers-index*))
-  (set! *buffers* (cons (cons *buffers-index* buffer) *buffers*))
-  *buffers-index*)
+  (let ([buffer-with-number (set-assq buffer 'number *buffers-index*)])
+    (set! *buffers* (cons (cons *buffers-index* buffer-with-number) *buffers*))
+    (trigger 'buffer-create buffer-with-number)
+    *buffers-index*))
+
+(define (current-buffer-number)
+  (cdr (assq 'buffer (current-window))))
+
+(define (current-buffer)
+  (window-buffer (current-window)))
 
 (define (buffer-name buffer)
   (cdr (assq 'name buffer)))
@@ -66,7 +71,7 @@
     (cons n (if (eq? n k) (fn buffer) buffer)))))
 
 (define (update-current-buffer-prop prop fn)
-  (let ([buffer-n (cdr (assq 'buffer (current-window)))])
+  (let ([buffer-n (current-buffer-number)])
     (update-buffer-by-number buffer-n (lambda (buffer)
       (set-assq buffer prop (fn buffer))))))
 
@@ -77,5 +82,6 @@
 (define (buffer-save buffer)
   (let* ([flags (+ open/wronly open/creat)]
          [file-descriptor (file-open (buffer-location buffer) flags)])
+    (trigger 'buffer-write buffer)
     (file-write file-descriptor (string-join (buffer-lines buffer) "\n" 'suffix))))
 

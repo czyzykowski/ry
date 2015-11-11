@@ -2,7 +2,9 @@
 (define *current-mode* '())
 
 (define (enter-mode new-mode)
-  (set! *current-mode* new-mode))
+  (trigger 'mode-exit (current-mode-name))
+  (set! *current-mode* new-mode)
+  (trigger 'mode-enter new-mode))
 
 (define (new-mode name keybinding)
   (set! *modes* (cons
@@ -126,6 +128,7 @@
       (append
         (self-inserting-char-list self-insert-char)
         (list
+          (cons "enter" newline-at-pointer)
           (cons "escape" (lambda () (enter-mode 'normal) (backward-char)))
           (cons "backspace" delete-backward-char)
           (cons "delete" delete-backward-char))))))

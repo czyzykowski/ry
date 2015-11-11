@@ -12,6 +12,7 @@
 (include "log.scm")
 (include "util.scm")
 (include "term.scm")
+(include "events.scm")
 
 (include "minibuffer.scm")
 (include "buffer.scm")
