@@ -2,7 +2,8 @@
 (define *buffers-index* 0)
 
 (define (new-buffer)
-  (list (cons 'modified? #f)
+  (list (cons 'number -1)
+        (cons 'modified? #f)
         (cons 'readonly? #f)
         (cons 'name "*unnamed*")
         (cons 'location #f)
@@ -15,7 +16,8 @@
                           (make-pathname (current-directory) filename))]
          [file-exists (file-exists? full-filename)]
          [file-lines (if file-exists (string-split (string-trim-right (read-all full-filename) #\newline) "\n" #t) '())])
-    (list (cons 'modified? #f)
+    (list (cons 'number -1)
+          (cons 'modified? #f)
           (cons 'readonly? #f)
           (cons 'name filename)
           (cons 'location full-filename)
@@ -26,11 +28,7 @@
   (set! *buffers* (del-assq n *buffers*)))
 
 (define (get-buffer-by-number n)
-  (let loop ([buffers *buffers*])
-    (cond [(null? buffers) #f]
-          [else (if (eq? n (caar buffers))
-                  (cdar buffers)
-                  (loop (cdr buffers)))])))
+  (cdr (assq n *buffers*)))
 
 (define (map-buffers! fn)
   (set! *buffers* (alist-map fn *buffers*)))
@@ -66,6 +64,9 @@
 (define (buffer-lines buffer)
   (cdr (assq 'lines buffer)))
 
+(define (buffer-number buffer)
+  (cdr (assq 'number buffer)))
+
 (define (update-buffer-by-number k fn)
   (map-buffers! (lambda (n buffer)
     (cons n (if (eq? n k) (fn buffer) buffer)))))
@@ -73,7 +74,9 @@
 (define (update-current-buffer-prop prop fn)
   (let ([buffer-n (current-buffer-number)])
     (update-buffer-by-number buffer-n (lambda (buffer)
-      (set-assq buffer prop (fn buffer))))))
+      (set-assq buffer prop (fn buffer))))
+    (when (eq? prop 'lines) ; TODO this shouln't be in ...-current-buffer but someting more generic
+      (trigger 'buffer-edit (get-buffer-by-number buffer-n)))))
 
 (define (update-current-buffer-pointer fn)
   (update-current-buffer-prop 'pointer (lambda (buffer)

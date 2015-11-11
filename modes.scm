@@ -43,6 +43,7 @@
 
 (define (make-key def)
   (cond [(equal? def "enter") (make-key% #f #f #\x0D)]
+        [(equal? def "tab") (make-key% #f #f #\tab)]
         [(equal? def "backspace") (make-key% #f #f #\backspace)]
         [(equal? def "delete") (make-key% #f #f #\delete)]
         [(equal? def "escape") (make-key% #f #f #\escape)]
@@ -129,6 +130,7 @@
         (self-inserting-char-list self-insert-char)
         (list
           (cons "enter" newline-at-pointer)
+          (cons "tab" insert-tab)
           (cons "escape" (lambda () (enter-mode 'normal) (backward-char)))
           (cons "backspace" delete-backward-char)
           (cons "delete" delete-backward-char))))))

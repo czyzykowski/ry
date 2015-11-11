@@ -212,19 +212,23 @@
 (define (newline-at-pointer)
   (update-current-buffer-prop 'lines (lambda (buffer)
     (let* ([pointer (buffer-pointer buffer)]
-          [lines (buffer-lines buffer)]
-          [current-line (if (< (cdr pointer) (length lines)) (list-ref lines (cdr pointer)) "")]
-          [current-line-length (max (string-length current-line) 0)]
-          [new-line-part-and-lines (delete-line-part% lines
-            (cdr pointer) (car pointer) current-line-length)]
-          [next-line-y (+ (cdr pointer) 1)]
-          [lines-with-blank-line (insert-line%
-            (cdr new-line-part-and-lines) next-line-y)]
-          [lines-with-text-on-new-line (insert-string%
-            lines-with-blank-line (cons 0 next-line-y) (car new-line-part-and-lines))])
+           [lines (buffer-lines buffer)]
+           [current-line (if (< (cdr pointer) (length lines)) (list-ref lines (cdr pointer)) "")]
+           [current-line-length (max (string-length current-line) 0)]
+           [new-line-part-and-lines (delete-line-part% lines
+             (cdr pointer) (car pointer) current-line-length)]
+           [next-line-y (+ (cdr pointer) 1)]
+           [lines-with-blank-line (insert-line%
+             (cdr new-line-part-and-lines) next-line-y)]
+           [lines-with-text-on-new-line (insert-string%
+             lines-with-blank-line (cons 0 next-line-y) (car new-line-part-and-lines))])
       lines-with-text-on-new-line)))
   (next-line)
   (beginning-of-line))
+
+(define (insert-tab)
+  ((self-insert-char #\space))
+  ((self-insert-char #\space)))
 
 ;;; Shortcuts
 (define q kill-ry)
