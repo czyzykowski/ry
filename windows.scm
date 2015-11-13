@@ -6,7 +6,7 @@
         (cons 'offsets (cons 0 0))
         (cons 'buffer buffer-n)))
 
-; type=[left, horizontal, vertical]
+; type=[leaf, horizontal, vertical]
 ; position=[left, right, top, bottom]
 (define (new-window type a b)
   (list (cons 'type type)
@@ -71,3 +71,24 @@
         (lambda (win)
           (if (window-focused? win) (k win)))
         *window-tree*))))
+
+(define (split-window orientation)
+  #f)
+
+(define split-window-vertically (curry split-window 'vertical))
+(define split-window-horizontally (curry split-window 'horizontal))
+
+(define (quit-window)
+  #f)
+
+(define (window-move-left)
+  #f)
+
+(define (window-move-right)
+  #f)
+
+(define (window-move-down)
+  #f)
+
+(define (window-move-up)
+  #f)

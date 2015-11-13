@@ -1,3 +1,5 @@
+; Logic for updating offets (scrolling behaviour)
+; TODO set width/height on window and update those on events not in render
 (define (update-cursor window x y width height left-gutter-width)
   (if (window-focused? window)
     (let* ([pointer (buffer-pointer (window-buffer window))]
@@ -19,6 +21,8 @@
       (term-move cur-x cur-y)))
   window)
 
+(define *space-regexp* (regexp " "))
+
 (define (display-buffer window x y width height)
   (define left-gutter-width (+ 1 (string-length
     (number->string
@@ -26,7 +30,6 @@
         (+ (length (buffer-lines (window-buffer window))) 1)
         height)))))
   (set! window (update-cursor window x y width height left-gutter-width))
-
   (let loop ([lines (buffer-lines (window-buffer window))]
              [current-y 0]
              [current-buffer-y (abs (cdr (window-offsets window)))])
@@ -38,8 +41,13 @@
       (if (>= current-buffer-y (length lines))
         (term-display-with x y term-c-gray term-c-default #f (lambda (d)
           (d left-gutter-width current-y (string-pad-right "~" width))))
-        (term-display-with x y term-c-white-light term-c-default #f (lambda (d)
-          (d left-gutter-width current-y (string-pad-right (list-ref lines current-buffer-y) width)))))
+        (let* ([line (list-ref lines current-buffer-y)]
+               [lines-with-spaces (if (equal? (string-trim line) "")
+                                    (make-string (string-length line) #\u2027)
+                                    line)]
+               [padded-line (string-pad-right lines-with-spaces width)])
+          (term-display-with x y term-c-white-light term-c-default #f (lambda (d)
+            (d left-gutter-width current-y padded-line)))))
       (loop lines (+ current-y 1) (+ current-buffer-y 1)))))
 
 (define (display-status-bar window x y width)

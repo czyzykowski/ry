@@ -13,6 +13,7 @@
 (include "util.scm")
 (include "term.scm")
 (include "events.scm")
+(include "yanking.scm")
 
 (include "minibuffer.scm")
 (include "buffer.scm")
@@ -117,4 +118,3 @@
       (term-shutdown))))
 
 (main)
-

@@ -52,7 +52,8 @@
   (edit-minibuffer *text-open-file* (lambda (filename)
     (let* ([buffer (new-buffer-from-file filename)]
            [buffer-n (add-buffer buffer)])
-      (update-current-window-prop 'buffer (lambda (w) buffer-n))))))
+      (update-current-window-prop 'buffer (lambda (w) buffer-n)))))
+  #f)
 
 ; Splits a list in two at a define `elt` index
 (define (split-elt l elt)
@@ -135,11 +136,21 @@
       (cons "" lines))
     (cons "" lines)))
 
+(define (whitespace-at-bol-length% line)
+  (-
+    (string-length line)
+    (string-length (string-trim line))))
+
 (define (insert-line% lines line)
   (if (< line (length lines))
     (call-with-values
       (lambda () (split-elt lines line))
-      (lambda (head rest) (append head '("") rest)))
+      (lambda (head rest)
+        (let* ([current-line (or (car (reverse head)) "")]
+               [whitespace-length (whitespace-at-bol-length% current-line)]
+               [new-line (make-string whitespace-length #\space)])
+          (debug-pp (list current-line whitespace-length new-line))
+          (append head (list new-line) rest))))
     lines))
 
 (define (self-insert-char ch)
@@ -193,13 +204,13 @@
 (define (insert-line-up)
   (update-current-buffer-prop 'lines (lambda (buffer)
     (insert-line% (buffer-lines buffer) (cdr (buffer-pointer buffer)))))
-  (beginning-of-line))
+  (end-of-line))
 
 (define (insert-line-down)
   (next-line)
   (update-current-buffer-prop 'lines (lambda (buffer)
     (insert-line% (buffer-lines buffer) (cdr (buffer-pointer buffer)))))
-  (beginning-of-line))
+  (end-of-line))
 
 (define (newline-at-pointer)
   (update-current-buffer-prop 'lines (lambda (buffer)
@@ -216,7 +227,7 @@
              lines-with-blank-line (cons 0 next-line-y) (car new-line-part-and-lines))])
       lines-with-text-on-new-line)))
   (next-line)
-  (beginning-of-line))
+  (end-of-line))
 
 (define (insert-tab)
   ((self-insert-char #\space))

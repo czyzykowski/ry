@@ -1,5 +1,8 @@
 (import chicken scheme)
 (use linenoise format utils)
+(require-extension utf8)
+(require-extension utf8-srfi-13)
+(require-extension utf8-srfi-14)
 
 (set-history-length! 300)
 (define *history-file* (let ([home (get-environment-variable "HOME")]

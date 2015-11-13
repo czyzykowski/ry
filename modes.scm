@@ -107,11 +107,22 @@
         (cons "C-u" previous-line-jump)
         (cons "g" (define-binding (list
           (cons "g" beginning-of-buffer))))
+        (cons "y" (define-binding (list
+          (cons "y" copy-line))))
+        (cons "p" paste)
         (cons "G" end-of-buffer)
         (cons "C-x" (define-binding (list
           (cons "C-s" save-file)
           (cons "C-f" open-file)
           (cons "C-c" kill-ry))))
+        (cons "C-w" (define-binding (list
+          (cons "q" quit-window)
+          (cons "h" window-move-left)
+          (cons "j" window-move-down)
+          (cons "k" window-move-up)
+          (cons "l" window-move-right)
+          (cons "s" split-window-horizontally)
+          (cons "v" split-window-vertically))))
         (cons "d" (define-binding (list
           (cons "d" kill-whole-line)
           (cons "h" delete-backward-char)
