@@ -11,8 +11,8 @@
   (if command-text
     (let* ([corrected-command-text ; automatically appen ) to commands if needed
               (if (eq? #\) (string-ref command-text (- (string-length command-text) 1)))
-                command-text
-                (string-append command-text ")"))]
+                (string-append "(" command-text)
+                (string-append "(" command-text ")"))]
             [eval-result (eval-string corrected-command-text)])
       (if (car eval-result)
         (when (cdr eval-result)
@@ -23,11 +23,6 @@
 ; It's similar to ":" in vim or M-x in emacs
 (define (smex)
   (edit-minibuffer "(" smex-commit))
-
-(define (entered-command% question-text command-text)
-  (substring command-text
-    (string-length question-text)
-    (string-length command-text)))
 
 (define *text-save-file* "Save file to: ")
 (define *text-open-file* "Open file: ")
@@ -45,22 +40,19 @@
           (number->string (length lines)) "L, "
           (number->string (string-length (string-join lines "\n"))) "C")))
       ; ask for filename & then save
-      (edit-minibuffer *text-save-file* (lambda (command-text)
+      (edit-minibuffer *text-save-file* (lambda (filename)
         (update-current-buffer-prop 'location (lambda (buffer)
-          (let ([filename (entered-command% *text-save-file* command-text)])
-            (if (absolute-pathname? filename)
-              filename
-              (make-pathname (current-directory) filename)))))
-        (save-file)))))
+          (if (absolute-pathname? filename)
+            filename
+            (make-pathname (current-directory) filename)))))
+      (save-file))))
   #f)
 
 (define (open-file)
-  (edit-minibuffer *text-open-file* (lambda (command-text)
-    (let* ([filename (entered-command% *text-open-file* command-text)]
-           [buffer (new-buffer-from-file filename)])
-      (add-buffer buffer)
-      (update-current-window-prop 'buffer (lambda (window)
-        buffer))))))
+  (edit-minibuffer *text-open-file* (lambda (filename)
+    (let* ([buffer (new-buffer-from-file filename)]
+           [buffer-n (add-buffer buffer)])
+      (update-current-window-prop 'buffer (lambda (w) buffer-n))))))
 
 ; Splits a list in two at a define `elt` index
 (define (split-elt l elt)
@@ -234,3 +226,4 @@
 (define q kill-ry)
 (define quit kill-ry)
 (define w save-file)
+(define e open-file)

@@ -82,13 +82,14 @@
 
 ; Render minibuffer's current state
 (define (display-minibuffer% minibuffer-text minibuffer-error?)
-  (if (eq? (current-mode-name) 'command)
-    (term-move (string-length minibuffer-text) (- term-height 1)))
-  (let ([fg-color (if minibuffer-error? term-c-red term-c-white)])
+  (let ([text (string-append minibuffer-command-text minibuffer-text)]
+        [fg-color (if minibuffer-error? term-c-red term-c-white)])
+    (if (eq? (current-mode-name) 'command)
+      (term-move (string-length text) (- term-height 1)))
     (term-display-with 0 0 fg-color term-c-default #f
       (lambda (d)
         (d 0 (- term-height 1) (make-string term-width #\space))
-        (d 0 (- term-height 1) minibuffer-text)))))
+        (d 0 (- term-height 1) text)))))
 
 (define (display-minibuffer)
   (display-minibuffer% minibuffer-text minibuffer-error?))
