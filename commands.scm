@@ -77,10 +77,9 @@
   (call-with-values
     (lambda () (split-elt lines (cdr pos)))
     (lambda (head rest)
-      (if (null? rest) (set! rest '("")))
       (call-with-values
-        (lambda () (split-elt (string->list (car rest)) (car pos)))
-        (lambda (lhead lrest) (append head (cons (list->string (append lhead (string->list str) lrest)) (cdr rest))))))))
+        (lambda () (split-elt (string->list (car (or rest '(""))) (car pos))))
+        (lambda (lhead lrest) (append head (cons (list->string (append lhead (string->list str) lrest)) (or (cdr rest) '("")))))))))
 
 (define (insert-char% lines pos new-char)
   (call-with-values
@@ -149,7 +148,6 @@
         (let* ([current-line (or (car (reverse head)) "")]
                [whitespace-length (whitespace-at-bol-length% current-line)]
                [new-line (make-string whitespace-length #\space)])
-          (debug-pp (list current-line whitespace-length new-line))
           (append head (list new-line) rest))))
     lines))
 

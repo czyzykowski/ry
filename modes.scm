@@ -154,6 +154,6 @@
         (self-inserting-char-list command-mode-insert-char)
         (list
           (cons "enter" command-mode-commit)
-          (cons "escape" (lambda () (set-minibuffer-message "") (enter-mode 'normal)))
+          (cons "escape" exit-command-mode)
           (cons "backspace" command-mode-delete-char)
           (cons "delete" command-mode-delete-char))))))

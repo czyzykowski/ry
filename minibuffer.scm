@@ -34,7 +34,7 @@
     (set-minibuffer-message "")
     (command-mode-handler #f)
     (command-mode-previous-mode #f)
-    (if previous-mode (enter-mode previous-mode))
+    (if previous-mode (enter-mode previous-mode) (enter-mode 'normal))
     (if handler (handler text))))
 
 (define (edit-minibuffer input-text fn)
@@ -42,3 +42,10 @@
   (command-mode-previous-mode (current-mode-name))
   (enter-mode 'command)
   (command-mode-handler fn))
+
+(define (exit-command-mode)
+  (let ([previous-mode (command-mode-previous-mode)])
+    (set-minibuffer-message "")
+    (command-mode-handler #f)
+    (command-mode-previous-mode #f)
+    (if previous-mode (enter-mode previous-mode) (enter-mode 'normal))))
