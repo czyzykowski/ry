@@ -115,21 +115,26 @@
         [(eq? position 'top) 'bottom]
         [(eq? position 'bottom) 'top]))
 
-(define (window-move-left)
+(define (window-move direction)
   (let* ([current-path (path-to-current-window)]
          [last-position (car (reverse current-path))]
          [last-position-opposite (window-position-opposite last-position)]
          [new-focused-window-path (reverse (cons last-position-opposite (cdr (reverse current-path))))])
-    (set! *window-tree*
-      (replace-window *window-tree* current-path (lambda (window)
-        (set-assq window 'focused? #f))))
-    (debug-pp (list current-path new-focused-window-path *window-tree*))
-    (set! *window-tree*
-      (replace-window *window-tree* new-focused-window-path (lambda (window)
-        (set-assq window 'focused? #t))))))
+    (when (or (and (eq? last-position 'left) (eq? direction 'right))
+              (and (eq? last-position 'right) (eq? direction 'left)))
+      (set! *window-tree*
+        (replace-window *window-tree* current-path (lambda (window)
+          (set-assq window 'focused? #f))))
+      (debug-pp (list current-path new-focused-window-path *window-tree*))
+      (set! *window-tree*
+        (replace-window *window-tree* new-focused-window-path (lambda (window)
+          (set-assq window 'focused? #t)))))))
+
+(define (window-move-left)
+  (window-move 'left))
 
 (define (window-move-right)
-  (window-move-left))
+  (window-move 'right))
 
 (define (window-move-down)
   #f)
