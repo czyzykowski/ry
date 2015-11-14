@@ -74,14 +74,14 @@
 ; Traverse window tree and render windows evenly
 (define (display-windows% window x y width height)
   (let ([type (window-type window)])
-    (cond [(eq? type 'horizontal)
-             (let ([half (floor (/ width 2))])
-               (display-windows% (assq 'left window) x y half height)
-               (display-windows% (assq 'right window) (+ x half) y (- width half) height))]
-          [(eq? type 'vertical)
-             (let ([half (floor (/ height 2))])
-               (display-windows% (assq 'top window) x y width half)
-               (display-windows% (assq 'bottom window) x (+ y half) width (- height half)))]
+    (cond [(eq? type 'vertical)
+              (let ([half (inexact->exact (floor (/ width 2)))])
+                (display-windows% (cdr (assq 'left window)) x y half height)
+                (display-windows% (cdr (assq 'right window)) (+ x half) y (- width half) height))]
+          [(eq? type 'horizontal)
+              (let ([half (inexact->exact (floor (/ height 2)))])
+                (display-windows% (cdr (assq 'top window)) x y width half)
+                (display-windows% (cdr (assq 'bottom window)) x (+ y half) width (- height half)))]
           [(eq? type 'leaf)
               (display-window window x y width height)])))
 

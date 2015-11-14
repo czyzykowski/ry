@@ -10,12 +10,12 @@
 ; position=[left, right, top, bottom]
 (define (new-window type a b)
   (list (cons 'type type)
-        (if (eq? type 'horizontal)
-          (cons 'top a)
-          (cons 'left a))
         (if (eq? type 'vertical)
-          (cons 'bottom b)
-          (cons 'right b))))
+          (cons 'left a)
+          (cons 'top a))
+        (if (eq? type 'vertical)
+          (cons 'right b)
+          (cons 'bottom b))))
 
 (define (window-set-focused win r)
   (set-assq win 'focused? r))
@@ -45,12 +45,12 @@
     (cond [(eq? 'leaf type) (fn window)]
           [(eq? 'horizontal type)
             (new-window 'horizontal
-              (assq 'left (map-windows fn (assq 'left window)))
-              (assq 'right (map-windows fn (assq 'right window))))]
+              (map-window-leafs fn (cdr (assq 'top window)))
+              (map-window-leafs fn (cdr (assq 'bottom window))))]
           [(eq? 'vertical type)
             (new-window 'vertical
-              (assq 'top (map-windows fn (assq 'top window)))
-              (assq 'bottom (map-windows fn (assq 'bottom window))))])))
+              (map-window-leafs fn (cdr (assq 'left window)))
+              (map-window-leafs fn (cdr (assq 'right window))))])))
 
 (define (map-window-leafs! fn)
   (set! *window-tree*
@@ -72,20 +72,64 @@
           (if (window-focused? win) (k win)))
         *window-tree*))))
 
-(define (split-window orientation)
-  #f)
+(define (path-to-current-window% window path)
+  (let ([type (window-type window)])
+    (cond [(eq? type 'leaf) (if (window-focused? window) path #f)]
+          [(eq? type 'vertical)
+            (or (path-to-current-window% (cdr (assq 'left window)) (cons 'left path))
+                (path-to-current-window% (cdr (assq 'right window)) (cons 'right path)))]
+          [(eq? type 'horizontal)
+            (or (path-to-current-window% (cdr (assq 'top window)) (cons 'top path))
+                (path-to-current-window% (cdr (assq 'bottom window)) (cons 'bottom path)))])))
 
-(define split-window-vertically (curry split-window 'vertical))
-(define split-window-horizontally (curry split-window 'horizontal))
+(define (path-to-current-window)
+  (let ([path (path-to-current-window% *window-tree* '())])
+    (if path (reverse path) #f)))
+
+; Orientation is horizontal or vertical, position is 'a or 'b
+(define (split-window orientation)
+  (map-window-leafs!
+    (lambda (window)
+      (if (window-focused? window)
+        (new-window orientation
+          window
+          (set-assq window 'focused? #f))
+        window))))
+
+(define split-window-vertically (lambda () (split-window 'vertical)))
+(define split-window-horizontally (lambda () (split-window 'horizontal)))
 
 (define (quit-window)
   #f)
 
+(define (replace-window window path fn)
+  (cond [(not window) (error "Invalid path given to replace-window")]
+        [(null? path) (fn window)]
+        [else
+          (set-assq window (car path)
+            (replace-window (cdr (assq (car path) window)) (cdr path) fn))]))
+
+(define (window-position-opposite position)
+  (cond [(eq? position 'left) 'right]
+        [(eq? position 'right) 'left]
+        [(eq? position 'top) 'bottom]
+        [(eq? position 'bottom) 'top]))
+
 (define (window-move-left)
-  #f)
+  (let* ([current-path (path-to-current-window)]
+         [last-position (car (reverse current-path))]
+         [last-position-opposite (window-position-opposite last-position)]
+         [new-focused-window-path (reverse (cons last-position-opposite (cdr (reverse current-path))))])
+    (set! *window-tree*
+      (replace-window *window-tree* current-path (lambda (window)
+        (set-assq window 'focused? #f))))
+    (debug-pp (list current-path new-focused-window-path *window-tree*))
+    (set! *window-tree*
+      (replace-window *window-tree* new-focused-window-path (lambda (window)
+        (set-assq window 'focused? #t))))))
 
 (define (window-move-right)
-  #f)
+  (window-move-left))
 
 (define (window-move-down)
   #f)

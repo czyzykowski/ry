@@ -81,7 +81,7 @@ language, you can change virtually everything in your plugins.
 - ~~better key mapping (support for ctrl & meta)~~
 - <kbd>zz</kbd>
 - kill-ring (with named registers)
-- saving
+- ~saving~
 - undo/redo
 - user config file
 - themes
@@ -90,6 +90,7 @@ language, you can change virtually everything in your plugins.
 - completion in opening file
 - configuration options
 - change directory
+- <kbd>[n]gg</kbd>
 - hooks (enter mode, exit mode, new buffer, read buffer,...) a la aucmd
 
 ### license

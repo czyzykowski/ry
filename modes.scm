@@ -103,14 +103,14 @@
         (cons "j" next-line)
         (cons "k" previous-line)
         (cons "l" forward-char)
-        (cons "C-d" next-line-jump)
-        (cons "C-u" previous-line-jump)
         (cons "g" (define-binding (list
           (cons "g" beginning-of-buffer))))
+        (cons "G" end-of-buffer)
+        (cons "C-d" next-line-jump)
+        (cons "C-u" previous-line-jump)
         (cons "y" (define-binding (list
           (cons "y" copy-line))))
         (cons "p" paste)
-        (cons "G" end-of-buffer)
         (cons "C-x" (define-binding (list
           (cons "C-s" save-file)
           (cons "C-f" open-file)
