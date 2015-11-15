@@ -60,12 +60,14 @@
          [pos-text-y (number->string (+ (cdr pos) 1))]
          [pos-text (string-append "(" pos-text-x ", " pos-text-y ")")]
          [mode-text (symbol->string (current-mode-name))]
-         [bg-color (if (window-focused? window) term-c-blue term-c-blue-light)])
+         [bg-color (if (window-focused? window) term-c-blue term-c-blue-light)]
+         [left (string-append (buffer-name buffer) " " pos-text " (" buffer-state-text ")")]
+         [right (string-append "(" mode-text ")")])
     (term-display-with x y term-c-black bg-color #f (lambda (d)
-      (d 0 0 (make-string width #\-))
-      (d 1 0 buffer-state-text)
-      (d 4 0 (string-append " " (buffer-name buffer) " " pos-text " "))
-      (d (- width (string-length mode-text) 3) 0 (string-append "(" mode-text ")"))))))
+      (d 0 0 (make-string width #\space))
+      (d 0 0 left)
+      (if (>= width (string-length (string-append left right)))
+        (d (- width (string-length right)) 0 right))))))
 
 (define (display-window window x y width height)
   (display-buffer window x y width (- height 1))

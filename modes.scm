@@ -122,7 +122,9 @@
           (cons "k" window-move-up)
           (cons "l" window-move-right)
           (cons "s" split-window-horizontally)
-          (cons "v" split-window-vertically))))
+          (cons "C-s" split-window-horizontally)
+          (cons "v" split-window-vertically)
+          (cons "C-v" split-window-vertically))))
         (cons "d" (define-binding (list
           (cons "d" kill-whole-line)
           (cons "h" delete-backward-char)

@@ -102,12 +102,10 @@
 (define (quit-window)
   #f)
 
-(define (replace-window window path fn)
-  (cond [(not window) (error "Invalid path given to replace-window")]
-        [(null? path) (fn window)]
-        [else
-          (set-assq window (car path)
-            (replace-window (cdr (assq (car path) window)) (cdr path) fn))]))
+(define (get-window-for-path window path)
+  (cond [(not window) #f]
+        [(null? path) window]
+        [else (get-window-for-path (cdr (assq (car path) window)) (cdr path))]))
 
 (define (window-position-opposite position)
   (cond [(eq? position 'left) 'right]
@@ -115,19 +113,57 @@
         [(eq? position 'top) 'bottom]
         [(eq? position 'bottom) 'top]))
 
+(define (position-of-type? type position)
+  (if (eq? type 'vertical)
+    (or (eq? position 'left) (eq? position 'right))
+    (or (eq? position 'top) (eq? position 'bottom))))
+
+(define (window-first-leaf-path window path direction)
+  (let ([type (window-type window)]
+        [opposite-direction (window-position-opposite direction)])
+    (cond [(eq? type 'leaf) path]
+          [(eq? type 'vertical)
+            (let ([direction-bias (if (position-of-type? 'vertical direction) opposite-direction 'left)])
+              (window-first-leaf-path
+                (cdr (assq direction-bias window))
+                (append path (list direction-bias))
+                direction))]
+          [(eq? type 'horizontal)
+            (let ([direction-bias (if (position-of-type? 'horizontal direction) opposite-direction 'top)])
+              (window-first-leaf-path
+                (cdr (assq direction-bias window))
+                (append path (list direction-bias))
+                direction))])))
+
+(define (replace-window window path fn)
+  (cond [(not window) (error "Invalid path given to replace-window")]
+        [(null? path) (fn window)]
+        [else
+          (set-assq window (car path)
+            (replace-window (cdr (assq (car path) window)) (cdr path) fn))]))
+
+(define (find-new-window-for-move window path direction)
+  (let* ([new-path-to-try (reverse (cons direction (cdr (reverse path))))]
+         [new-window (get-window-for-path window new-path-to-try)])
+    (if (and new-window (or
+                          (not (eq? (window-type new-window) 'leaf))
+                          (not (window-focused? new-window)))) ; ignore current win
+      (window-first-leaf-path new-window new-path-to-try direction)
+      (let* ([current-window-parent (reverse (cdr (reverse path)))])
+        (if (null? current-window-parent)
+          #f ; we exhausted our parents, we must be at the edge
+          (find-new-window-for-move window current-window-parent direction))))))
+
 (define (window-move direction)
   (let* ([current-path (path-to-current-window)]
-         [last-position (car (reverse current-path))]
-         [last-position-opposite (window-position-opposite last-position)]
-         [new-focused-window-path (reverse (cons last-position-opposite (cdr (reverse current-path))))])
-    (when (or (and (eq? last-position 'left) (eq? direction 'right))
-              (and (eq? last-position 'right) (eq? direction 'left)))
+         [window-tree-without-focus
+          (replace-window *window-tree* current-path (lambda (window)
+            (set-assq window 'focused? #f)))]
+         [new-path (find-new-window-for-move *window-tree* current-path direction)])
+    (debug-pp (list 'newpath new-path))
+    (when new-path
       (set! *window-tree*
-        (replace-window *window-tree* current-path (lambda (window)
-          (set-assq window 'focused? #f))))
-      (debug-pp (list current-path new-focused-window-path *window-tree*))
-      (set! *window-tree*
-        (replace-window *window-tree* new-focused-window-path (lambda (window)
+        (replace-window window-tree-without-focus new-path (lambda (window)
           (set-assq window 'focused? #t)))))))
 
 (define (window-move-left)
@@ -136,8 +172,8 @@
 (define (window-move-right)
   (window-move 'right))
 
-(define (window-move-down)
-  #f)
-
 (define (window-move-up)
-  #f)
+  (window-move 'top))
+
+(define (window-move-down)
+  (window-move 'bottom))

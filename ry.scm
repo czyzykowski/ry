@@ -72,7 +72,7 @@
 
     (let* ([key-pressed (make-key% (eq? mod mod-alt) ctrl? char)]
            [current-key-handler (mode-match-keypress keybinding key-pressed)])
-      (debug-pp (list key-pressed current-key-handler))
+      (debug-pp (list key-pressed (if (procedure? current-key-handler) current-key-handler 'keymap)))
       (cond [(procedure? current-key-handler) (current-key-handler)]
             [(list? current-key-handler) (poll-input current-key-handler)])))))
 
