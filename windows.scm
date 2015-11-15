@@ -105,7 +105,9 @@
 (define (get-window-for-path window path)
   (cond [(not window) #f]
         [(null? path) window]
-        [else (get-window-for-path (cdr (assq (car path) window)) (cdr path))]))
+        [else (if (assq (car path) window)
+                    (get-window-for-path (cdr (assq (car path) window)) (cdr path))
+                    #f)]))
 
 (define (window-position-opposite position)
   (cond [(eq? position 'left) 'right]
