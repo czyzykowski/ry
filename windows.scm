@@ -162,7 +162,6 @@
           (replace-window *window-tree* current-path (lambda (window)
             (set-assq window 'focused? #f)))]
          [new-path (find-new-window-for-move *window-tree* current-path direction)])
-    (debug-pp (list 'newpath new-path))
     (when new-path
       (set! *window-tree*
         (replace-window window-tree-without-focus new-path (lambda (window)

@@ -34,7 +34,7 @@
   (set! *buffers* (alist-map fn *buffers*)))
 
 (define (add-buffer buffer)
-  (set! *buffers-index* (+ *buffers-index*))
+  (set! *buffers-index* (+ *buffers-index* 1))
   (let ([buffer-with-number (set-assq buffer 'number *buffers-index*)])
     (set! *buffers* (cons (cons *buffers-index* buffer-with-number) *buffers*))
     (trigger 'buffer-create buffer-with-number)
@@ -87,4 +87,3 @@
          [file-descriptor (file-open (buffer-location buffer) flags)])
     (trigger 'buffer-write buffer)
     (file-write file-descriptor (string-join (buffer-lines buffer) "\n" 'suffix))))
-

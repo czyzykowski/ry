@@ -4,10 +4,10 @@ OBJ = term.o display.o ry.o
 all: ry
 
 %.o: %.scm
-	  $(CSC) -c -o $@ $<
+	$(CSC) -c -o $@ $<
 
 ry: $(OBJ)
-	  $(CSC) -o $@ $^
+	$(CSC) -o $@ $^
 
 clean:
 	rm *.o

@@ -53,6 +53,12 @@ language, you can change virtually everything in your plugins.
   - <kbd>x</kbd> Deletes char under cursor (`delete-char-under-cursor`)
   - <kbd>Ctrl</kbd>+<kbd>x</kbd> <kbd>Ctrl</kbd>+<kbd>f</kbd> Open file (`open-file`)
   - <kbd>Ctrl</kbd>+<kbd>x</kbd> <kbd>Ctrl</kbd>+<kbd>c</kbd> Quit (`kill-ry`)
+  - <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>s</kbd> Split window horizontally (`split-window-horizontally`)
+  - <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>v</kbd> Split window vertically (`split-window-vertically`)
+  - <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>h</kbd> Move to left window (`window-move-left`)
+  - <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>j</kbd> Move to bottom window (`window-move-bottom`)
+  - <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>k</kbd> Move to top window (`window-move-top`)
+  - <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>l</kbd> Move to right window (`window-move-right`)
 - Insert mode
   - <kbd>any visible chars</kbd> Inserts character at cursor's position (`self-insert-char`)
   - <kbd>backspace</kbd> Deletes character to the left (`delete-backward-char`)
