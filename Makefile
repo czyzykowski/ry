@@ -3,6 +3,13 @@ OBJ = term.o display.o ry.o
 
 all: ry
 
+deps:
+	chicken-install utf8
+	chicken-install format
+	chicken-install termbox
+	chicken-install alist-lib
+	chicken-install linenoise
+
 %.o: %.scm
 	$(CSC) -c -o $@ $<
 
