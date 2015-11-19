@@ -81,22 +81,40 @@ language, you can change virtually everything in your plugins.
 
 ![](https://raw.githubusercontent.com/kiasaki/scheme-ry/master/support/screenshot.png)
 
+### todo (minimal usability)
+
+- basic highlighting (only comments and [](){}""'')
+- visual mode
+  - support movement
+  - visual line mode
+  - support <kbd>d</kbd>
+  - support <kbd>c</kbd>
+  - support <kbd>y</kbd>
+- support <kbd>~</kbd> (in visual too)
+- support <kbd>gu</kbd> (in visual too)
+- support <kbd>gU</kbd> (in visual too)
+- support <kbd><</kbd> & <kbd>></kbd> (in visual too)
+- <kbd>b</kbd> & <kbd>e</kbd> & <kbd>w</kbd>
+- <kbd>[n]gg</kbd>
+- change directory
+- run shell command
+- completion in opening file
+
 ### todo
 
-- highlighting
+- highlighting (syntax based)
 - ~~better key mapping (support for ctrl & meta)~~
 - <kbd>zz</kbd>
 - kill-ring (with named registers)
 - ~saving~
+- searching `n N * / #`
+- `f{char} & F{char}`
 - undo/redo
 - user config file
 - themes
 - dired
 - completion in command mode
-- completion in opening file
 - configuration options
-- change directory
-- <kbd>[n]gg</kbd>
 - hooks (enter mode, exit mode, new buffer, read buffer,...) a la aucmd
 
 ### license
