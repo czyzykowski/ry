@@ -1,8 +1,9 @@
 (import chicken scheme)
-(use termbox format alist-lib posix utils)
+(use termbox format alist-lib posix utils s)
 (require-extension utf8)
 (require-extension utf8-srfi-13)
 (require-extension utf8-srfi-14)
+(require-extension irregex)
 
 (define *running* #t)
 
