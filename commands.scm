@@ -78,7 +78,7 @@
     (lambda () (split-elt lines (cdr pos)))
     (lambda (head rest)
       (call-with-values
-        (lambda () (split-elt (string->list (car (or rest '(""))) (car pos))))
+        (lambda () (split-elt (string->list (car (or rest '("")))) (car pos)))
         (lambda (lhead lrest) (append head (cons (list->string (append lhead (string->list str) lrest)) (or (cdr rest) '("")))))))))
 
 (define (insert-char% lines pos new-char)
