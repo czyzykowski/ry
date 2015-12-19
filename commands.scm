@@ -74,21 +74,16 @@
     (lambda (lhead lrest) (cons lhead lrest))))
 
 (define (insert-string% lines pos str)
-  (call-with-values
-    (lambda () (split-elt lines (cdr pos)))
-    (lambda (head rest)
-      (call-with-values
-        (lambda () (split-elt (string->list (car (or rest '("")))) (car pos)))
-        (lambda (lhead lrest) (append head (cons (list->string (append lhead (string->list str) lrest)) (or (cdr rest) '("")))))))))
+  (let* ((split-result (split-elt-cell lines (cdr pos)))
+         (head (car split-result))
+         (rest (cdr split-result))
+         (lsplit-result (split-elt-cell (string->list (car (or rest '("")))) (car pos)))
+         (lhead (car lsplit-result))
+         (lrest (cdr lsplit-result)))
+    (append head (cons (list->string (append lhead (string->list str) lrest)) (or (cdr rest) '(""))))))
 
 (define (insert-char% lines pos new-char)
-  (call-with-values
-    (lambda () (split-elt lines (cdr pos)))
-    (lambda (head rest)
-      (if (null? rest) (set! rest '("")))
-      (call-with-values
-        (lambda () (split-elt (string->list (car rest)) (car pos)))
-        (lambda (lhead lrest) (append head (cons (list->string (append lhead (cons new-char lrest))) (cdr rest))))))))
+  (insert-string% lines pos (string new-char)))
 
 (define (change-char% lines pos new-char)
   (call-with-values
