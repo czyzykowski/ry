@@ -84,7 +84,7 @@
     (if (> current-char 126)
       keybindings
       (let ([ch (integer->char current-char)])
-        (loop (+ current-char 1) (cons (cons (make-string 1 ch) (fn ch)) keybindings))))))
+        (loop (+ current-char 1) (cons (cons (string ch) (fn ch)) keybindings))))))
 
 (define normal-mode
   (new-mode
@@ -97,6 +97,11 @@
         (cons "A" (lambda () (enter-mode 'insert) (end-of-line)))
         (cons "0" beginning-of-line)
         (cons "$" end-of-line)
+        (cons "^" first-non-whitespace)
+        (cons "w" next-beginning-of-word)
+        (cons "W" next-beginning-of-word)
+        (cons "b" previous-beginning-of-word)
+        (cons "B" previous-beginning-of-word)
         (cons "o" (lambda () (enter-mode 'insert) (insert-line-down)))
         (cons "O" (lambda () (enter-mode 'insert) (insert-line-up)))
         (cons "h" backward-char)
@@ -133,7 +138,7 @@
           (cons "l" delete-forward-char))))
         (cons ":" smex)
         (cons "x" delete-char-under-cursor)
-        (cons "r" (self-inserting-char-list change-char))))))
+        (cons "r" (define-binding (self-inserting-char-list change-char)))))))
 
 (define insert-mode
   (new-mode

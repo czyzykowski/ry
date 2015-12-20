@@ -51,5 +51,5 @@
 
 (define (lines-width lines y)
   (if (< y (length lines))
-    (max 0 (- (string-length (list-ref lines y)) 1))
+    (- (string-length (list-ref lines y)) 1)
     0))

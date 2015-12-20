@@ -85,14 +85,26 @@
 (define (insert-char% lines pos new-char)
   (insert-string% lines pos (string new-char)))
 
+(define (delete-char% lines pos)
+  (if (and (>= (cdr pos) 0)
+           (< (cdr pos) (length lines))
+           (< (car pos) (string-length (list-ref lines (cdr pos))))
+           (>= (car pos) 0))
+    (let* ((split-result (split-elt-cell lines (cdr pos)))
+           (head (car split-result))
+           (rest (cdr split-result))
+           (line (car (or rest '("")))))
+      (append head (cons
+                     (if (eq? 0 (string-length line))
+                       line
+                       (string-append
+                         (substring line 0 (car pos))
+                         (substring line (+ 1 (car pos)) (string-length line))))
+                     (cdr rest))))
+    lines))
+
 (define (change-char% lines pos new-char)
-  (call-with-values
-    (lambda () (split-elt lines (cdr pos)))
-    (lambda (head rest)
-      (if (null? rest) (set! rest '("")))
-      (call-with-values
-        (lambda () (split-elt (string->list (car rest)) (car pos)))
-        (lambda (lhead lrest) (append head (cons (list->string (append lhead (cons new-char (cdr lrest)))) (cdr rest))))))))
+  (insert-char% (delete-char% lines pos) pos new-char))
 
 (define (delete-line% lines line)
   (if (< line (length lines))
@@ -100,18 +112,6 @@
       (lambda () (split-elt lines line))
       (lambda (head rest) (append head (cdr rest))))
     lines))
-
-(define (delete-char% lines pos)
-  (if (and (< (cdr pos) (length lines)) (>= (cdr pos) 0))
-    (if (and (< (car pos) (string-length (list-ref lines (cdr pos)))) (>= (car pos) 0))
-      (call-with-values
-        (lambda () (split-elt lines (cdr pos)))
-        (lambda (head rest)
-          (call-with-values
-            (lambda () (split-elt (string->list (car rest)) (car pos)))
-            (lambda (lhead lrest) (append head (cons (list->string (append lhead (cdr lrest))) (cdr rest)))))))
-        lines)
-      lines))
 
 ; Deletes a x1 to x2 part of a line
 ; returns (cons string-removed new-lines)
@@ -220,7 +220,7 @@
              lines-with-blank-line (cons 0 next-line-y) (car new-line-part-and-lines))])
       lines-with-text-on-new-line)))
   (next-line)
-  (end-of-line))
+  (first-non-whitespace))
 
 (define (insert-tab)
   ((self-insert-char #\space))

@@ -46,6 +46,19 @@
 (define (current-buffer)
   (window-buffer (current-window)))
 
+(define (current-buffer-lines-and-pointer)
+  (let ((buffer (current-buffer)))
+    (cons (buffer-lines buffer) (buffer-pointer buffer))))
+
+(define (current-buffer-char)
+  (let* ((lines-and-pointer (current-buffer-lines-and-pointer))
+         (pos (cdr lines-and-pointer))
+         (line (list-ref (car lines-and-pointer) (cdr pos))))
+    (if (eq? (string-length line) 0)
+      #\newline
+      (string-ref line (car pos)))))
+
+
 (define (buffer-name buffer)
   (cdr (assq 'name buffer)))
 

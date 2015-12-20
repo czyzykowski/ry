@@ -32,6 +32,11 @@ language, you can change virtually everything in your plugins.
   - <kbd>A</kbd> Enters insert-mode moving to the end of the line
   - <kbd>0</kbd> Moves cursor to the beginning of the line (`beginning-of-line`)
   - <kbd>$</kbd> Moves cursor to the beginning of the line (`end-of-line`)
+  - <kbd>^</kbd> Move to first non whitespace character of line (`first-non-whitespace`)
+  - <kbd>w</kbd> Move to beginning of WORD forward (`next-beginning-of-word`)
+  - <kbd>W</kbd> Move to beginning of WORD forward (`next-beginning-of-word`)
+  - <kbd>b</kbd> Move to beginning of WORD backwards (`previous-beginning-of-word`)
+  - <kbd>B</kbd> Move to beginning of WORD backwards (`previous-beginning-of-word`)
   - <kbd>o</kbd> Insert a new line below current line (`insert-line-up`)
   - <kbd>O</kbd> Insert a new line above current line (`insert-line-down`)
   - <kbd>h</kbd> Moves cursor left (`backward-char`)
