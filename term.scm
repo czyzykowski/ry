@@ -65,14 +65,13 @@
 (define (term-create-cells string fg bg)
   (let ((s (string-match "([^;]*)(.*)" string)))
     (if s
-      (begin
-        (apply append
-          (map
-            (lambda (x)
-              (map (cut create-cell <> (second x) (third x))
-                   (string->list (car x))))
-            (splice (cdr s)
-                    (list (list fg bg) (list term-c-gray bg))))))
+      (apply append
+             (map
+               (lambda (x)
+                 (map (cut create-cell <> (second x) (third x))
+                      (string->list (car x))))
+               (splice (cdr s)
+                       (list (list fg bg) (list term-c-gray bg)))))
       (map (cut create-cell <> fg bg) (string->list string)))))
 
 (define (term-display x y text #!optional
