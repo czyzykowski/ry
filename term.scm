@@ -56,15 +56,17 @@
   (cursor-set! x y))
 
 (define (term-create-cells string fg bg)
-  (let ((s (s-split ";" string #t)))
-    (if (> (length s) 1)
-      (append
-        (map
-          (cut create-cell <> fg bg)
-          (string->list (first s)))
-        (map
-          (cut create-cell <> term-c-gray bg)
-          (string->list (apply s-concat (cons ";" (cdr s))))))
+  (let ((s (string-match "(.*)(;.*)" string)))
+    (if s
+      (begin
+        (set! s (cdr s))
+        (append
+          (map
+            (cut create-cell <> fg bg)
+            (string->list (first s)))
+          (map
+            (cut create-cell <> term-c-gray bg)
+            (string->list (car (cdr s))))))
       (map (cut create-cell <> fg bg) (string->list string)))))
 
 (define (term-display x y text #!optional

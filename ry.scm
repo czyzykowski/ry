@@ -3,7 +3,7 @@
 (require-extension utf8)
 (require-extension utf8-srfi-13)
 (require-extension utf8-srfi-14)
-(require-extension irregex)
+(require-extension regex)
 
 (define *running* #t)
 
