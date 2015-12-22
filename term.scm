@@ -56,7 +56,7 @@
   (cursor-set! x y))
 
 (define (term-create-cells string fg bg)
-  (let ((s (string-match "(.*)(;.*)" string)))
+  (let ((s (string-match "([^;]*)(.*)" string)))
     (if s
       (begin
         (set! s (cdr s))
