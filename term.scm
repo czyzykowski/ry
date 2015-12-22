@@ -55,22 +55,28 @@
 (define (term-move x y)
   (cursor-set! x y))
 
+(define (splice alist blist)
+  (let f ([a alist] [b blist] [nl '()])
+    (if (or (null-list? a) (null-list? b))
+      nl
+      (f (cdr a) (cdr b)
+         (append nl (list (cons (car a) (car b))))))))
+
 (define (term-create-cells string fg bg)
   (let ((s (string-match "([^;]*)(.*)" string)))
     (if s
       (begin
-        (set! s (cdr s))
-        (append
+        (apply append
           (map
-            (cut create-cell <> fg bg)
-            (string->list (first s)))
-          (map
-            (cut create-cell <> term-c-gray bg)
-            (string->list (car (cdr s))))))
+            (lambda (x)
+              (map (cut create-cell <> (second x) (third x))
+                   (string->list (car x))))
+            (splice (cdr s)
+                    (list (list fg bg) (list term-c-gray bg))))))
       (map (cut create-cell <> fg bg) (string->list string)))))
 
 (define (term-display x y text #!optional
-                               (fg term-c-black) (bg term-c-default) (attr #f))
+                      (fg term-c-black) (bg term-c-default) (attr #f))
   (let* ([fg-style (if attr (style fg attr) (style fg))]
          [bg-style (style bg)]
          [cells (term-create-cells text fg-style bg-style)])
