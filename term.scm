@@ -60,7 +60,7 @@
     (if (or (null-list? a) (null-list? b))
       nl
       (f (cdr a) (cdr b)
-         (append nl (list (cons (car a) (car b))))))))
+         (append nl `(,(cons (car a) (car b))))))))
 
 (define (term-create-cells string fg bg)
   (let ((s (string-match "([^;]*)(.*)" string)))
@@ -71,7 +71,7 @@
                  (map (cut create-cell <> (second x) (third x))
                       (string->list (car x))))
                (splice (cdr s)
-                       (list (list fg bg) (list term-c-gray bg)))))
+                       `((,fg ,bg) (,term-c-gray ,bg)))))
       (map (cut create-cell <> fg bg) (string->list string)))))
 
 (define (term-display x y text #!optional
